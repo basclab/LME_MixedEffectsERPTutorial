@@ -1,7 +1,7 @@
 We recommend the following introductory textbooks, papers, and websites for linear mixed effects models:
 
 
-Textbooks
+**Textbooks**
 
 •	Duursma, R., & Powell, J. (2019). Linear mixed-effects models. Western Sydney University. Retrieved from: http://www.hiercourse.com/docs/Rnotes_mixed.pdf
 
@@ -12,7 +12,7 @@ Textbooks
 •	Snijders, T. A. B., & Bosker, R. J. (1999). Multilevel analysis: An introduction to basic and advanced multilevel modeling (2nd ed.). SAGE Publications.
 
 
-Articles
+**Articles**
 
 •	Baayen, R. H., Davidson, D. J., & Bates, D. M. (2008). Mixed-effects modeling with crossed random effects for subjects and items. Journal of Memory and Language, 59(4), 390–412. https://doi.org/10.1016/j.jml.2007.12.005
 
@@ -33,7 +33,7 @@ Articles
 •	Volpert-Esmond, H. I., Page-Gould, E., & Bartholow, B. D. (2021). Using multilevel models for the analysis of event-related potentials. International Journal of Psychophysiology, 162, 145–156. https://doi.org/10.1016/j.ijpsycho.2021.02.006
 
 
-Online Resources
+**Online Resources**
 
 •	Demos, A.P. Multi-level modeling: Three levels designs. http://www.alexanderdemos.org/Mixed5.html
 
