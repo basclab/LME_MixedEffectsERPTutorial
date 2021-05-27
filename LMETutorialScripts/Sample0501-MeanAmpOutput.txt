@@ -1,4 +1,4 @@
-SUBJECTID,age,emotion,ACTOR,presentNumber,meanAmp
+SUBJECTID,age,emotion,ACTOR,presentNumber,meanAmpNC
 01,olderAgeGroup,B,1,1,-28.059
 01,olderAgeGroup,B,1,2,-12.979
 01,olderAgeGroup,B,1,3,-13.897
