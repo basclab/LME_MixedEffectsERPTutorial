@@ -20,7 +20,7 @@ We recommend the following introductory textbooks, papers, and websites for line
 
 •	Brauer, M., & Curtin, J. J. (2018). Linear mixed-effects models and the analysis of nonindependent data: A unified framework to analyze categorical and continuous independent variables that vary within-subjects and/or within-items. _Psychological Methods, 23_(3), 389–411. https://doi.org/10.1037/met0000159
 
-•	Brown, V. A. (2021) An introduction to linear mixed-effects modeling in R._ Advances in Methods and Practices in Psychological Science, 4_(1), 1, 1-19. https://doi.org/10.1177/2515245920960351
+•	Brown, V. A. (2021) An introduction to linear mixed-effects modeling in R. _Advances in Methods and Practices in Psychological Science, 4_(1), 1, 1-19. https://doi.org/10.1177/2515245920960351
 
 •	DeBruine, L. M., & Barr, D. J. (2021) Understanding mixed-effects models through data stimulation. _Advances in Methods and Practices in Psychological Science, 4_(1), 1-15. https://doi.org/10.1177/2515245920965119
 
