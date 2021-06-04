@@ -7,15 +7,15 @@
 % The mean amplitude value is extracted for each of the bins defined by
 % the bin descriptor file (see the LME_02_CreateBinDescriptorFile.m and
 % LME_03_BinBasedEpoch.m scripts for more information). For experiments 
-% that are not fully crossed (e.g., participants were assigned different 
-% actors in order to match the participant's own race) or for any amount 
+% that are not fully crossed (e.g., subjects were assigned different 
+% actors in order to match the subject's own race) or for any amount 
 % of missing trials, some trial-level bins may not contain any data. The 
 % setNaNForEmptyBins function locates these "empty" bins and sets their
 % value to NaN (i.e., Not a Number) during step 3. 
 
-% Each participant has one exported mean amplitude .txt file. The
+% Each subject has one exported mean amplitude .txt file. The
 % LME_06_OrganizeDataFiles.R script merges all of the datafiles into long
-% format in R so that all participants are saved in one dataframe. 
+% format in R so that all subjects are saved in one dataframe. 
 
 % This script can be modified to export other output measures (e.g., peak
 % amplitude) by changing the arguments of the pop_geterpvalues function
@@ -52,17 +52,17 @@
         %   These numbers will vary depending on your montage.
     
 % Script Functions:
-    % 1. Import each participant's .erp file
+    % 1. Import each subject's .erp file
     % 2. Export the raw mean amplitude output file (not for analysis)
     % 3. Use setNaNForEmptyBins to export the final mean amplitude output file
     
 % Output:
     % - Output mean amplitude .txt files with one mean amplitude per bin
-    %   and one file per participant. The value for empty bins have been 
+    %   and one file per subject. The value for empty bins have been 
     %   set to NaN. Each file contains the following columns:
         % - startWindow and endWindow: The time window used for extracting
         %   the mean amplitude value. 
-        % - value: The mean amplitude for this participant’s specified bin 
+        % - value: The mean amplitude for this subject’s specified bin 
         %   and channel. 
         % - channelNumber: The number for this channel in the channel montage
         %   (e.g., 49).
@@ -73,7 +73,7 @@
         % - binLabel: The bin label used to identify the bin in the bin 
         %   descriptor file (see the LME_02_CreateBinDescriptorFile.m script 
         %   for more information). 
-        % - ERPset: The participant's .erp filename. 
+        % - ERPset: The subject's .erp filename. 
         
 % Copyright 2021 Megan J. Heise, Serena K. Mon, Lindsay C. Bowman
 % Brain and Social Cognition Lab, University of California Davis, Davis, CA, USA.
@@ -124,14 +124,14 @@ addpath(setNaNForEmptyBinsFolder)
 timeWindowArray = [300 500];
 channelArray = [8 24 64];
 
-%% For each participant: Load .erp file and extract the mean amplitude for each bin/channel
-for f = 1:length(importFiles) % Loop through each participant's file
+%% For each subject: Load .erp file and extract the mean amplitude for each bin/channel
+for f = 1:length(importFiles) % Loop through each subject's file
     originalName = importFiles(f).name; % Extract filename
     filename = erase(originalName,".erp"); % Remove .erp from filename
     
     [ALLEEG EEG CURRENTSET ALLCOM] = eeglab;
     
-%% 1. IMPORT EACH PARTICIPANT'S .ERP FILE
+%% 1. IMPORT EACH SUBJECT'S .ERP FILE
     ERP = pop_loaderp('filename', originalName, 'filepath', importFolder);
    
 %% 2. EXPORT THE RAW MEAN AMPLITUDE OUTPUT FILE (NOT FOR ANALYSIS)

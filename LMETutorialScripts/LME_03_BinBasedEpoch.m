@@ -1,13 +1,13 @@
 % LME Tutorial Script: 3. Extract Bin-Based Epochs
 
 % This script uses the bin descriptor file (see LME_02_CreateBinDescriptorFile.m
-% script) to assign the 5-digit event markers into bins. Each participant's
+% script) to assign the 5-digit event markers into bins. Each subject's
 % dataset is then epoched around these event marker using the desired time
 % window. This epoched dataset will be used to calculate trial-level and 
 % averaged ERP waveforms in the LME_04_CalculateERPs.m script. 
 
-% This script also outputs an EventList text file for each participant. 
-% This file documents the event markers and bins in each participant's
+% This script also outputs an EventList text file for each subject. 
+% This file documents the event markers and bins in each subject's
 % dataset.
 
 % ***See Appendix D from Heise, Mon, and Bowman (submitted) for additional details. ***
@@ -32,20 +32,20 @@
         %   created by the LME_02_CreateBinDescriptorFile.m script. 
     
 % Script Functions:
-    % 1. Import each participant's .set file
+    % 1. Import each subject's .set file
     % 2. Create EventList 
     % 3. Assign events to bins and save final EventList containing bin
     %    information
     % 4. Extract bin-based epochs and baseline correct
-    % 5. Save participant's epoched .set file
+    % 5. Save subject's epoched .set file
     
 % Outputs:
     % - EventList .txt files documenting the event markers and bins
-    %   saved for each participant's dataset. 
+    %   saved for each subject's dataset. 
         % - For more information about EventLists, see the following ERPLAB
         %   resource: https://github.com/lucklab/erplab/wiki/Creating-an-EventList:-ERPLAB-Functions:-Tutorial
     % - Epoched .set files that have been time-locked to the unique 5-digit
-    %   event markers for each participant.
+    %   event markers for each subject.
     
 % Copyright 2021 Megan J. Heise, Serena K. Mon, Lindsay C. Bowman
 % Brain and Social Cognition Lab, University of California Davis, Davis, CA, USA.
@@ -82,19 +82,19 @@ saveEpochDataFolder = 'C:\Users\basclab\Desktop\LMETutorial\13_Epoched';
 % Specify filepath of bin descriptor file 
 binDescriptorFilename = 'C:\Users\basclab\Desktop\LMETutorial\LME_BinDescriptorFile.txt';
 
-%% For each participant: Load .set file and perform steps for epoching the data 
-for f = 1:length(importFiles) % Loop through each participant's file
+%% For each subject: Load .set file and perform steps for epoching the data 
+for f = 1:length(importFiles) % Loop through each subject's file
     originalName = importFiles(f).name; % Extract filename
     filename = erase(originalName,".set"); % Remove .set from filename
     
     [ALLEEG EEG CURRENTSET ALLCOM] = eeglab;
     
-%% 1. IMPORT EACH PARTICIPANT'S .SET FILE
+%% 1. IMPORT EACH SUBJECT'S .SET FILE
     EEG = pop_loadset ('filename', originalName, 'filepath', importFolder);
     [ALLEEG, EEG, CURRENTSET] = eeg_store(ALLEEG, EEG, 0);
     
 %% 2. CREATE EVENTLIST 
-    fprintf('Participant %s: Creating EventList \n\n', filename);
+    fprintf('Subject %s: Creating EventList \n\n', filename);
     
     % The ‘BoundaryNumeric’ and ‘BoundaryString’ arguments specify that any
     % 'boundary' event markers are converted to ‘-99’ event markers.
@@ -102,7 +102,7 @@ for f = 1:length(importFiles) % Loop through each participant's file
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
     
 %% 3. ASSIGN EVENTS TO BINS AND SAVE FINAL EVENTLIST CONTAINING BIN INFORMATION
-    fprintf('Participant %s: Assigning Events to Bins \n\n', filename);
+    fprintf('Subject %s: Assigning Events to Bins \n\n', filename);
     
     % Create filename for saving the EventList .txt file
     saveEventListFilename = strcat(filename, '_EventList.txt');
@@ -112,14 +112,14 @@ for f = 1:length(importFiles) % Loop through each participant's file
     % to their correspondng bins. In this tutorial, each event marker is 
     % assigned to three bins: their trial-specific bin (e.g., 30101), 
     % their overarching bin (e.g., Angry), and the "all conditions" bin.
-    % The participant's EventList .txt file (with information about the event 
+    % The subject's EventList .txt file (with information about the event 
     % markers in the dataset and their assigned bins) is exported at the
     % end of this step. 
     EEG  = pop_binlister(EEG , 'BDF', binDescriptorFilename, 'ExportEL', saveEventListFilepath, 'IndexEL',  1, 'SendEL2', 'All', 'UpdateEEG', 'on', 'Voutput', 'EEG' );
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
     
 %% 4. EXTRACT BIN-BASED EPOCHS AND BASELINE CORRECT
-    fprintf('Participant %s: Extract Epochs and Baseline Correct \n\n', filename);
+    fprintf('Subject %s: Extract Epochs and Baseline Correct \n\n', filename);
 
     % In this tutorial, data is epoched in -200 to 1000 ms time windows and
     % data is baseline corrected using the average voltage from the
@@ -129,7 +129,7 @@ for f = 1:length(importFiles) % Loop through each participant's file
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG); % Store the epoched dataset in ALLEEG
     EEG = eeg_checkset(EEG); % Check dataset fields for consistency
     
-%% 5. SAVE PARTICIPANT'S EPOCHED .SET FILE
+%% 5. SAVE SUBJECT'S EPOCHED .SET FILE
     filename = strcat(filename, '_epoch.set'); % Update filename to indicate data has been epoched
     EEG = pop_saveset( EEG, 'filename', filename, 'filepath', saveEpochDataFolder); % Save file in the desired folder
     

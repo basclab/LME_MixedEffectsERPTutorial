@@ -79,8 +79,8 @@
 % preceding codes (i.e., each code corresponds to a specific stimulus) and
 % their corresponding overarching bin (e.g., emotion condition).
 % NOTE: This spreadsheet contains 1 sheet corresponding to 'Experiment1'.
-% If your experiment design is not fully crossed (e.g., participants were
-% assigned different actors in order to match the participant’s own race),
+% If your experiment design is not fully crossed (e.g., subjects were
+% assigned different actors in order to match the subject’s own race),
 % you may need additional sheets for specifying each set of preceding codes.  
 eventMarkerMappingFilename = 'C:\Users\basclab\Desktop\LMETutorial\LME_EventMarkerMappingKey.xlsx';
 opts = detectImportOptions(eventMarkerMappingFilename, 'Sheet', 'Experiment1');

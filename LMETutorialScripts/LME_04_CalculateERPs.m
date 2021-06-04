@@ -5,9 +5,9 @@
 
 % Each trial-level ERP corresponds to an ERP waveform time-locked to a specific
 % presentation of a stimulus. For overarching bins that include all trials
-% within each condition (e.g., Angry), the average ERP is calculated over all of the trials
-% within a condition. For the "all conditions" bin, every trial across every
-% condition is averaged. 
+% within each condition (e.g., Angry), the average ERP is calculated over all 
+% of the trials within a condition. For the "all conditions" bin, every trial 
+% across every condition is averaged. 
 
 % ***See Appendix D from Heise, Mon, and Bowman (submitted) for additional details. ***
 
@@ -26,13 +26,13 @@
         % - saveERPFolder: Folder for saving .erp files. 
        
 % Script Functions:
-    % 1. Import each participant's epoched .set file
+    % 1. Import each subject's epoched .set file
     % 2. Compute trial-level and averaged ERPs 
-    % 3. Save participant's .erp file
+    % 3. Save subject's .erp file
     
 % Output:
     % - Processed .erp files containing the trial-level and averaged ERPs
-    %   (one file per participant)
+    %   (one file per subject)
     
 % Copyright 2021 Megan J. Heise, Serena K. Mon, Lindsay C. Bowman
 % Brain and Social Cognition Lab, University of California Davis, Davis, CA, USA.
@@ -58,7 +58,7 @@
 %% DATA ENVIRONMENT
 
 % Specify folder location of epoched data. Epochs containing artifacts have
-% been marked in each participant's dataset. 
+% been marked in each subject's dataset. 
 importFolder = 'C:\Users\basclab\Desktop\LMETutorial\14_EpochedArtifactMarked';
 cd(importFolder) % Change current folder to importFolder
 importFiles = dir('*.set*'); % Make a directory of all .set files in importFolder
@@ -66,19 +66,19 @@ importFiles = dir('*.set*'); % Make a directory of all .set files in importFolde
 % Specify folder location for saving ERP data files
 saveERPFolder = 'C:\Users\basclab\Desktop\LMETutorial\15_ERPsetFiles';
 
-%%  For each participant: Load .set file and perform steps for calculating average ERPs
-for f = 1:length(importFiles) % Loop through each participant's file
+%%  For each subject: Load .set file and perform steps for calculating average ERPs
+for f = 1:length(importFiles) % Loop through each subject's file
     originalName = importFiles(f).name; % Extract filename
     filename = erase(originalName,".set"); % Remove .set from filename
     
     [ALLEEG EEG CURRENTSET ALLCOM] = eeglab;
     
-%% 1. IMPORT EACH PARTICIPANT'S EPOCHED .SET FILE
+%% 1. IMPORT EACH SUBJECT'S EPOCHED .SET FILE
     EEG = pop_loadset('filename', originalName, 'filepath', importFolder);
     [ALLEEG, EEG, CURRENTSET] = eeg_store(ALLEEG, EEG, 0);
        
 %% 2. CALCULATE TRIAL-LEVEL AND AVERAGED ERPS
-    fprintf('Participant %s: Calculate ERPs \n\n', filename);
+    fprintf('Subject %s: Calculate ERPs \n\n', filename);
     
     % The ‘Criterion’ and 'good' arguments specify that artifact-containing
     % epochs should be removed from the dataset before calculating ERPs.
@@ -86,7 +86,7 @@ for f = 1:length(importFiles) % Loop through each participant's file
     % are also removed. 
     ERP = pop_averager(EEG , 'Criterion', 'good', 'DQ_flag', 1, 'ExcludeBoundary', 'on', 'SEM', 'on');
 
-%% 3. SAVE PARTICIPANT'S .ERP FILE
+%% 3. SAVE SUBJECT'S .ERP FILE
     erpName = strcat(filename,'.erp'); % Update filename with an .erp extension
     ERP = pop_savemyerp(ERP, 'erpname', filename, 'filename', erpName, 'filepath', saveERPFolder);
 
