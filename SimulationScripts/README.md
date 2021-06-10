@@ -55,7 +55,7 @@ We also recommend adding the following subfolders for storing output files:
 Due to the computation time required (~6-8 minutes/sample), simulated samples were generated across three computers. These computers used identical scripts except for the following variables and lines of code in LMESimulation_02_SimulateERPData.m. These variables correspond to the number of simulated samples (sampleN), first sample ID (sampleStart), and random seed. 
 
 For example, computer 2 used the Mersenne Twister generator with a seed of 3 and simulated 250 samples with IDs from #501 to 750. 
-Computer Name | sampleN (line 117) | sampleStart (line 122) | Random seed (line 129
+Computer Name | sampleN (line 126) | sampleStart (line 131) | Random seed (line 138)
 ------------ | ------------- | ------------- | -------------
 1 | 500 | 1 | rng(1,'twister')
 2 | 250 | 501 | rng(2,'twister')
