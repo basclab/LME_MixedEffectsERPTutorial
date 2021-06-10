@@ -22,7 +22,7 @@ A brief description of each script is listed below. Each script also has comment
 * **simulateOneSubject.m**: Generates data for one subject.
   * This function specifies the epoch window, sampling rate, presentation number of each stimulus, emotion peak amplitude and latency, subject peak amplitude intercept and latency shift, trial-level noise amplitude, and event marker preceding codes.
 
-*R scripts for organizing data files and fitting LME models*
+*R scripts for organizing data files and fitting LME and ANOVA models*
 * **LMESimulation_03_OrganizeDataFiles.R**: Merges the mean amplitude output files and subject data log into one file. In addition, extracts subject ID and stimuli-related information for each trial and organizes them into variables for LME and ANOVA analysis.
 * **LMESimulation_04_ExtractModelOutput.R**: Imports each simulated sample’s data file, induces missing trials based on the specified missingness pattern (e.g., missing at random for within- and between-subjects effects) and percent of subjects with low trial-count, and fits LME and ANOVA models to the dataset. Estimated marginal means are extracted for each emotion condition and model.
   * This script also includes code for running a power analysis.
