@@ -98,7 +98,7 @@ binDescriptorTable = table({}, {}, {},'VariableNames',{'binNumber','binLabel','e
 % Specify folder location for saving bin descriptor file and bin descriptor file key
 saveBinDescriptorFilesFolder = 'C:\Users\basclab\Desktop\LMESimulation';
 saveBinDescriptorFileKey = fullfile(saveBinDescriptorFilesFolder,'LMESimulation_BinDescriptorFileKey.xlsx'); % Filename for bin descriptor file (key used for documentation)
-saveBinDescriptorFile = fullfile(saveBinDescriptorFilesFolder,'LMESimulation_BinDescriptorFile.txt'); % Filename for bin descriptor file (used for ERPLAB processng)
+saveBinDescriptorFile = fullfile(saveBinDescriptorFilesFolder,'LMESimulation_BinDescriptorFile.txt'); % Filename for bin descriptor file (used for ERPLAB processing)
 
 %% 1. GENERATE ALL SIMULATED TRIAL EVENT MARKERS
 
