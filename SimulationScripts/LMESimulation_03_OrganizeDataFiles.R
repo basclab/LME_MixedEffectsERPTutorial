@@ -123,7 +123,10 @@ for (meanAmpFile in meanAmpDir) { # Loop through each sample
 
 # 4. SAVE FINAL LONG DATAFRAME AS A .CSV FILE
   
-  dfOriginal <- dfOriginal[, c(1, 6, 2, 3, 4, 5)] # Reorder columns
+  # Specify the column order in the exported file
+  columnOrder <- c("SUBJECTID","age","emotion","ACTOR","presentNumber","meanAmpNC")
+  dfOriginal <- dfOriginal[, ..columnOrder] # Reorder columns
+  
   fwrite(dfOriginal, file = saveFilename, row.names = FALSE) # Save long dataframe in desired folder
   
 }
