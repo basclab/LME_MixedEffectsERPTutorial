@@ -11,13 +11,13 @@
 % In addition, a bin descriptor file 'key' is created, which documents each
 % bin's number, label, and corresponding event markers. Each unique event marker
 % corresponds to one stimulus trial and contains information about the stimulus'
-% emotion condition/actor/presentation.
+% emotion condition/actor/presentation number.
 
 % ***See Appendix D from Heise, Mon, and Bowman (submitted) for additional details. ***
 
 % Requirements:        
     % - Filepaths to the following folder:
-        % - saveBinDescriptorFileFolder: Folder for saving bin descriptor file and
+        % - saveBinDescriptorFilesFolder: Folder for saving bin descriptor file and
         %   bin descriptor file key.  
     % - Filepath to the following file used during processing:
         % - eventMarkerMapping: Spreadsheet listing the preceding codes
@@ -35,9 +35,9 @@
     %    (LME_BinDescriptorFile.txt) 
     
 % Outputs:
-    % - Bin descriptor file: File specifying each bin's number and label and
-    %   the 5-digit event markers that belong to each bin. This file is used 
-    %   by ERPLAB functions in the LME_03_BinBasedEpoch.m script. 
+    % - Bin descriptor file: File specifying each bin's number, label, and
+    %   5-digit event markers. This file is used by ERPLAB functions in the 
+    %   LME_03_BinBasedEpoch.m script. 
         % - This file formats the information from the bin descriptor file key 
         %   (see below) into a text file based on the following ERPLAB guidelines:
         %   https://github.com/lucklab/erplab/wiki/Assigning-Events-to-Bins-with-BINLISTER:-Tutorial
@@ -47,8 +47,8 @@
         %   starting at 1 and increment by 1 without missing values.
         % - binLabel: The text description for each bin (e.g., the "Angry" bin 
         %   contains all trials of the Angry emotion condition; the "AllEmotion"
-        %   bin contains every trial/condition; the "30101" bin only contains the
-        %   specific 30101 trial). 
+        %   bin contains every trial for all conditions; the "30101" bin only 
+        %   contains the specific 30101 trial). 
         % - eventMarker: The 5-digit event markers assigned to the corresponding bin
         %   (e.g., the "Angry" bin contains 30101;30102;30103;30104;30105;etc.).
 
@@ -84,8 +84,7 @@
 % you may need additional sheets for specifying each set of preceding codes.  
 eventMarkerMappingFilename = 'C:\Users\basclab\Desktop\LMETutorial\LME_EventMarkerMappingKey.xlsx';
 opts = detectImportOptions(eventMarkerMappingFilename, 'Sheet', 'Experiment1');
-opts = setvartype(opts,'NumericalValue','string'); % Specify that these two columns are imported as strings
-opts = setvartype(opts,'NewPrecedingCode','string');
+opts = setvartype(opts,'NewPrecedingCode','string'); % Specify that this column is imported as a string
 eventMarkerMapping = readtable(eventMarkerMappingFilename, opts, 'Sheet', 'Experiment1'); % Import eventMarkerMapping spreadsheet
 
 % Specify the maximum presentation number of each stimulus. NOTE: This variable 
@@ -101,7 +100,7 @@ binDescriptorTable = table({}, {}, {},'VariableNames',{'binNumber','binLabel','e
 % Specify folder location for saving bin descriptor file and bin descriptor file key
 saveBinDescriptorFilesFolder = 'C:\Users\basclab\Desktop\LMETutorial';
 saveBinDescriptorFileKey = fullfile(saveBinDescriptorFilesFolder,'LME_BinDescriptorFileKey.xlsx'); % Filename for bin descriptor file (key used for documentation)
-saveBinDescriptorFile = fullfile(saveBinDescriptorFilesFolder,'LME_BinDescriptorFile.txt'); % Filename for bin descriptor file (used for ERPLAB processng)
+saveBinDescriptorFile = fullfile(saveBinDescriptorFilesFolder,'LME_BinDescriptorFile.txt'); % Filename for bin descriptor file (used for ERPLAB processing)
 
 %% 1. CREATE OVERARCHING BINS THAT INCLUDE ALL TRIALS WITHIN EACH CONDITION
 
@@ -135,13 +134,13 @@ for i =1:length(uniqueOverarchingBins) % Loop through each possible overarching 
     overarchingBinEventMarkers_Output = sprintf(eventMarkersStringSpec, overarchingBinEventMarkers); 
     
     % Create a row in the binDescriptorTable with this overarching bin's number
-    % (specified  in line 118 with the i variable), label (specified in line 119
+    % (specified in line 117 with the i variable), label (specified in line 118
     % with the overarchingBinLabel), and corresponding 5-digit event markers 
-    % (formatted in line 135). NOTE: The table's columns are formatted as cell arrays.
+    % (formatted in line 134). NOTE: The table's columns are formatted as cell arrays.
     binDescriptorTable = [binDescriptorTable; {num2cell(i), cellstr(overarchingBinLabel)}, ...
         {overarchingBinEventMarkers_Output(1:end-1)}];
     
-    % The event markers saved in the overarchingBinEventMarkers array is also 
+    % The event markers saved in the overarchingBinEventMarkers array are also 
     % saved in the allConditionsArray for use in step 2. 
     allConditionsArray = vertcat(allConditionsArray, overarchingBinEventMarkers); 
 end
@@ -153,7 +152,7 @@ allConditionsBinNumber = height(binDescriptorTable) + 1; % The bin number is equ
 allConditionsBinLabel = 'AllEmotion';
 
 % Format the event markers in the allEmotionArray using the same
-% specifications from line 134.
+% specifications from line 133.
 allConditionsEventMarkers_Output = sprintf(eventMarkersStringSpec, allConditionsArray);
 
 % Add a new row to binDescriptorTable for this "all conditions" bin

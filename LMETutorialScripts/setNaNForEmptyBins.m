@@ -36,9 +36,9 @@
 
 % Usage example:
     % >> filename = 'Sub-001-1_EEBP_example.erp';
-    % >> acceptedTrialArray = ERP.ntrials.accepted';
     % >> saveOutputFolder_RAW = 'C:\Users\basclab\Desktop\LMETutorial\16_ERPsNC\RawFiles_NotForAnalysis';
     % >> saveOutputFolder_FINAL = 'C:\Users\basclab\Desktop\LMETutorial\16_ERPsNC\FinalFiles';
+    % >> acceptedTrialArray = ERP.ntrials.accepted';
     % >> setNaNForEmptyBins(filename, saveOutputFolder_RAW, saveOutputFolder_FINAL, ...
     % >>    acceptedTrialArray, 'mean');
 

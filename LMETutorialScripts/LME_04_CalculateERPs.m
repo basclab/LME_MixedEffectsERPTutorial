@@ -1,6 +1,6 @@
 % LME Tutorial Script: 4. Calculate ERPs
 
-% This script extracts trial-level and average ERPs based on bins assigned
+% This script extracts trial-level and averaged ERPs based on bins assigned
 % during the LME_03_BinBasedEpoch.m script. 
 
 % Each trial-level ERP corresponds to an ERP waveform time-locked to a specific
@@ -14,7 +14,7 @@
 % Requirements:
     % - Needs EEGLAB v 2019_0 and ERPLAB v 8.01
         % - For more information on EEGLAB, see: Delorme, A. & Makeig, S. (2004).
-        %   EEGLAB: an open source toolbox for analysis of single-trial EEG dynamics.
+        %   EEGLAB: An open source toolbox for analysis of single-trial EEG dynamics.
         %   https://sccn.ucsd.edu/eeglab/index.php
         % - For more information on ERPLAB, see: Lopez-Calderon, J., & Luck, S. J.
         %   (2014). ERPLAB: An open-source toolbox for the analysis of event-related
@@ -66,7 +66,7 @@ importFiles = dir('*.set*'); % Make a directory of all .set files in importFolde
 % Specify folder location for saving ERP data files
 saveERPFolder = 'C:\Users\basclab\Desktop\LMETutorial\15_ERPsetFiles';
 
-%%  For each subject: Load .set file and perform steps for calculating average ERPs
+%%  For each subject: Load .set file and perform steps for calculating ERPs
 for f = 1:length(importFiles) % Loop through each subject's file
     originalName = importFiles(f).name; % Extract filename
     filename = erase(originalName,".set"); % Remove .set from filename

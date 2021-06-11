@@ -15,7 +15,7 @@
 % Requirements:
     % - Needs EEGLAB v 2019_0 and ERPLAB v 8.01
         % - For more information on EEGLAB, see: Delorme, A. & Makeig, S. (2004).
-        %   EEGLAB: an open source toolbox for analysis of single-trial EEG dynamics.
+        %   EEGLAB: An open source toolbox for analysis of single-trial EEG dynamics.
         %   https://sccn.ucsd.edu/eeglab/index.php
         % - For more information on ERPLAB, see: Lopez-Calderon, J., & Luck, S. J.
         %   (2014). ERPLAB: An open-source toolbox for the analysis of event-related
@@ -27,9 +27,9 @@
         %   Outputs section below for more information).
         % - saveEpochDataFolder: Folder for saving epoched .set files. 
     % - Filepath to the following file used during processing:
-        % - binDescriptorFile: File specifying each bin's number and label and
-        %   the 5-digit event markers that belong to each bin. This file is
-        %   created by the LME_02_CreateBinDescriptorFile.m script. 
+        % - binDescriptorFile: File specifying each bin's number, label, and
+        %   5-digit event markers. This file is created by the 
+        %   LME_02_CreateBinDescriptorFile.m script. 
     
 % Script Functions:
     % 1. Import each subject's .set file
@@ -109,7 +109,7 @@ for f = 1:length(importFiles) % Loop through each subject's file
     saveEventListFilepath = fullfile(saveEventListFolder, saveEventListFilename);
     
     % Use the binlister function to assign the 5-digit unique event markers
-    % to their correspondng bins. In this tutorial, each event marker is 
+    % to their corresponding bins. In this tutorial, each event marker is 
     % assigned to three bins: their trial-specific bin (e.g., 30101), 
     % their overarching bin (e.g., Angry), and the "all conditions" bin.
     % The subject's EventList .txt file (with information about the event 
@@ -124,7 +124,7 @@ for f = 1:length(importFiles) % Loop through each subject's file
     % In this tutorial, data is epoched in -200 to 1000 ms time windows and
     % data is baseline corrected using the average voltage from the
     % pre-stimulus period. The epoch and baseline correction window can be
-    % modified based on your processing piepline. 
+    % modified based on your processing pipeline. 
     EEG = pop_epochbin(EEG , [-200.0  1000.0],  'pre');
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG); % Store the epoched dataset in ALLEEG
     EEG = eeg_checkset(EEG); % Check dataset fields for consistency
@@ -133,6 +133,6 @@ for f = 1:length(importFiles) % Loop through each subject's file
     filename = strcat(filename, '_epoch.set'); % Update filename to indicate data has been epoched
     EEG = pop_saveset( EEG, 'filename', filename, 'filepath', saveEpochDataFolder); % Save file in the desired folder
     
-    clear filename originalname
+    clear originalName filename saveEventListFilename saveEventListFilepath
 end
 clear % Clear variable workspace

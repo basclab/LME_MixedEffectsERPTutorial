@@ -1,7 +1,7 @@
 % LME Tutorial Script: 5. Measure ERPs
 
 % This script extracts the mean amplitude of a component from the trial-level
-% and average ERP waveforms calculated in the LME_04_CalculateERPs.m script.
+% and averaged ERP waveforms calculated in the LME_04_CalculateERPs.m script.
 % Data is exported for each channel of interest.
 
 % The mean amplitude value is extracted for each of the bins defined by
@@ -11,7 +11,7 @@
 % actors in order to match the subject's own race) or for any amount 
 % of missing trials, some trial-level bins may not contain any data. The 
 % setNaNForEmptyBins function locates these "empty" bins and sets their
-% value to NaN (i.e., Not a Number) during step 3. 
+% value to NaN (i.e., 'Not a Number') during step 3. 
 
 % Each subject has one exported mean amplitude .txt file. The
 % LME_06_OrganizeDataFiles.R script merges all of the datafiles into long
@@ -28,7 +28,7 @@
 % Requirements:
     % - Needs EEGLAB v 2019_0 and ERPLAB v 8.01
         % - For more information on EEGLAB, see: Delorme, A. & Makeig, S. (2004).
-        %   EEGLAB: an open source toolbox for analysis of single-trial EEG dynamics.
+        %   EEGLAB: An open source toolbox for analysis of single-trial EEG dynamics.
         %   https://sccn.ucsd.edu/eeglab/index.php
         % - For more information on ERPLAB, see: Lopez-Calderon, J., & Luck, S. J.
         %   (2014). ERPLAB: An open-source toolbox for the analysis of event-related
@@ -57,9 +57,9 @@
     % 3. Use setNaNForEmptyBins to export the final mean amplitude output file
     
 % Output:
-    % - Output mean amplitude .txt files with one mean amplitude per bin
-    %   and one file per subject. The value for empty bins have been 
-    %   set to NaN. Each file contains the following columns:
+    % - Mean amplitude .txt files with one mean amplitude value per bin/
+    %   channel and one file per subject. The value for empty bins have 
+    %   been set to NaN. Each file contains the following columns:
         % - startWindow and endWindow: The time window used for extracting
         %   the mean amplitude value. 
         % - value: The mean amplitude for this subject’s specified bin 
@@ -101,7 +101,7 @@
 % Specify folder location of ERP data files
 importFolder = 'C:\Users\basclab\Desktop\LMETutorial\15_ERPsetFiles';
 cd(importFolder) % Change current folder to importFolder
-importFiles = dir('*.erp*'); % Make a directory of all .set files in importFolder
+importFiles = dir('*.erp*'); % Make a directory of all .erp files in importFolder
 
 % Specify folder location for saving RAW mean amplitude files created
 % during step 2
@@ -116,7 +116,7 @@ addpath(setNaNForEmptyBinsFolder)
 
 % Define variables for mean amplitude extraction: 
 % In this tutorial, the NC mean amplitude is extracted over a 300-500 ms
-% time window for each of the three following channels (from a
+% time window for each of the following three channels (from a
 % 64-channel montage High Precision fabric ActiCap):
     % - C3 (channel #8) 
     % - Cz (channel #64)
@@ -166,6 +166,6 @@ for f = 1:length(importFiles) % Loop through each subject's file
     setNaNForEmptyBins(filename, saveOutputFolder_RAW, saveOutputFolder_FINAL, ...
         acceptedTrialArray, 'mean');
     
-    clear originalName filename emptyBins saveOutputFilename_RAW
+    clear originalName filename saveOutputFilename_RAW acceptedTrialArray
 end
 clear % Clear variable workspace

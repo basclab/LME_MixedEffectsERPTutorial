@@ -19,7 +19,7 @@
 % Requirements:
     % - Needs EEGLAB v 2019_0
         % - For more information on EEGLAB, see: Delorme, A. & Makeig, S. (2004).
-        %   EEGLAB: an open source toolbox for analysis of single-trial EEG dynamics.
+        %   EEGLAB: An open source toolbox for analysis of single-trial EEG dynamics.
         %   https://sccn.ucsd.edu/eeglab/index.php   
     % - Filepaths to the following folders:
         % - importFolder: Folder containing preprocessed .set files. If needed,
@@ -107,7 +107,7 @@ for f = 1:length(importFiles) % Loop through each subject's file
     % in identifying emotional face stimuli markers, but not fixation markers)
     for w = 1:length(eventMarkerMapping.NumericalValue) % Loop through each row of the eventMarkerMapping's NumericalValue column
         eventMarkerOriginal = eventMarkerMapping.NumericalValue(w); % Extract each original event marker 
-        eventMarkerPreCode = eventMarkerMapping.NewPrecedingCode(w); % Extract corresponding 3-digit preceding code from the NewPrecedingCode column
+        eventMarkerPrecCode = eventMarkerMapping.NewPrecedingCode(w); % Extract corresponding 3-digit preceding code from the NewPrecedingCode column
         
         % Extract all occurrences of this specific event marker from the subject's allEventArray
         eventMarkerOriginalIdx = find(strcmp(allEventArray, eventMarkerOriginal));
@@ -117,7 +117,7 @@ for f = 1:length(importFiles) % Loop through each subject's file
         % is 301). This new event marker has the same latency as the original marker. 
         for x = 1:length(eventMarkerOriginalIdx)
             numEvents = length(EEG.event); % This variable is used in the next two lines to add a new event at the end of the subject's event array
-            EEG.event(numEvents+1).type = eventMarkerPreCode{:}; % Name this new event marker as the preceding code
+            EEG.event(numEvents+1).type = eventMarkerPrecCode{:}; % Name this new event marker as the preceding code
             EEG.event(numEvents+1).latency = EEG.event(eventMarkerOriginalIdx(x)).latency; % Copy latency from the original event marker to the new event marker
         end
     end
@@ -162,5 +162,6 @@ for f = 1:length(importFiles) % Loop through each subject's file
     filename = strcat(filename, '_uniqueFlag'); % Update filename to indicate that unique flags have been added
     EEG = pop_saveset(EEG, 'filename', filename, 'filepath', saveUniqueFlagFolder); % Save file in the desired folder
 
+    clear originalName filename allEventArray allEventArray_Updated allEventArray_Final eventMarkerOriginalIdx eventMarkerOriginalIdx_Final
 end
 clear % Clear variable workspace
