@@ -51,6 +51,8 @@ We also recommend adding the following subfolders for storing output files:
   * The trial count file lists the number of remaining trials per subject and emotion condition after inducing missing trials. Trial counts for all simulated samples are stored in one file.
 * **SubjectDataLog**: Contains each sample’s subject data log, which lists each subject’s assigned age group. There is one file for each simulated sample and files are created by the simulateOneSample function. 
 
+Examples of each output file are available here: [https://github.com/basclab/LME_MixedEffectsERPTutorial/tree/main/SimulationScripts/ExampleOutputFiles](https://github.com/basclab/LME_MixedEffectsERPTutorial/tree/main/SimulationScripts/ExampleOutputFiles)
+
 ## Details for replicating results from manuscript
 Due to the computation time required (~6-8 minutes/sample), simulated samples reported in Heise et al. (submitted) were generated across three computers. These computers used identical scripts except for the following variables and lines of code in LMESimulation_02_SimulateERPData.m. These variables correspond to the number of simulated samples (sampleN), first sample ID (sampleStart), and random seed. 
 
