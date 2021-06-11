@@ -1,12 +1,17 @@
-The following scripts were used to produce these example output files. See script comments for more information about each file's variables.
+The following scripts were used to produce these example output files. See each corresponding script for more information about each file's variables.
 
-* LMESimulation_01_CreateBinDescriptorFile.m: 
+* **LMESimulation_01_CreateBinDescriptorFile.m**:
   * LMESimulation_BinDescriptorFile.txt 
   * LMESimulation_BinDescriptorFileKey.xlsx
 
-* LMESimulation_02_SimulateERPData.m:
+* **LMESimulation_02_SimulateERPData.m**:
   * Sample0443-MeanAmpOutput_PreMerge.txt
   * Sample0443-SubjectDataLog.txt
 
-* LMESimulation_03_OrganizeDataFiles.m:
-  * Sample0443-MeanAmpOutput.txt
+* **LMESimulation_03_OrganizeDataFiles.R**:
+  * Sample0443-MeanAmpOutput.csv: This file is identical to the one saved in the [LME tutorial section](https://github.com/basclab/LME_MixedEffectsERPTutorial/tree/main/LMETutorialScripts).
+
+* **LMESimulation_04_ExtractModelOutput.R**:
+  * sampleN1_subN50_modelOutput.csv
+  * sampleN1_subN50_trialCount.csv
+  * Note: The filenames for these two output files reflect the number of simulated samples that were inputted into the script. In this example, the script was run with only 1 sample (sample 0443). 
