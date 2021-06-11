@@ -4,7 +4,7 @@ Simulated ERP data reported in Section 3 and Appendix B of Heise, Mon, and Bowma
 * [Script overview](#script-overview)
 * [Script requirements](#script-requirements)
 * [Suggested folder structure](#suggested-folder-structure)
-* [Details for replicating results from Section 3](#details-for-replicating-results-from-section-3)
+* [Details for replicating results from manuscript](#details-for-replicating-results-from-manuscript)
 * [Modifications for your own simulations and power analyses](#modifications-for-your-own-simulations-and-power-analyses)
 
 ## Script overview
@@ -14,7 +14,7 @@ A brief description of each script is listed below. Each script also has comment
 * **LMESimulation_01_CreateBinDescriptorFile.m**: Creates a .txt file listing the event markers that belong to each ERP ‘bin’.
   * In this simulation, each simulated subject saw 100 trials (2 emotion conditions and 5 different ‘actors’ with 10 presentations each). As a result, there are 100 trial-specific bins.
 * **LMESimulation_02_SimulateERPData.m**: Simulates trial-level ERP data using three helper functions (simulateAllSamples, simulateOneSample, and simulateOneSubject).
-  * This script specifies the number of simulated samples, subjects per sample, and random seed. See section below for more information about replicating the results presented in Heise, Mon, and Bowman (submitted).
+  * This script specifies the number of simulated samples, subjects per sample, and random seed. See section below for more information about replicating the results presented in Heise et al. (submitted).
 * **simulateAllSamples.m**: Specifies a neural source and generates data for each sample using the simulateOneSample function.
   * This function specifies the lead field, channel montage, channels of interest, and dipole location and orientation used for all simulated samples.
 * **simulateOneSample.m**: Generates data for each subject of a simulated sample using the simulateOneSubject function.
@@ -51,8 +51,8 @@ We also recommend adding the following subfolders for storing output files:
   * The trial count file lists the number of remaining trials per subject and emotion condition after inducing missing trials. Trial counts for all simulated samples are stored in one file.
 * **SubjectDataLog**: Contains each sample’s subject data log, which lists each subject’s assigned age group. There is one file for each simulated sample and files are created by the simulateOneSample function. 
 
-## Details for replicating results from Section 3
-Due to the computation time required (~6-8 minutes/sample), simulated samples were generated across three computers. These computers used identical scripts except for the following variables and lines of code in LMESimulation_02_SimulateERPData.m. These variables correspond to the number of simulated samples (sampleN), first sample ID (sampleStart), and random seed. 
+## Details for replicating results from manuscript
+Due to the computation time required (~6-8 minutes/sample), simulated samples reported in Heise et al. (submitted) were generated across three computers. These computers used identical scripts except for the following variables and lines of code in LMESimulation_02_SimulateERPData.m. These variables correspond to the number of simulated samples (sampleN), first sample ID (sampleStart), and random seed. 
 
 For example, computer 2 used the Mersenne Twister generator with a seed of 3 and simulated 250 samples with IDs from #501 to 750. 
 Computer Name | sampleN (line 126) | sampleStart (line 131) | Random seed (line 138)
