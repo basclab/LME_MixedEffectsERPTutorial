@@ -14,4 +14,4 @@ The following scripts were used to produce these example output files. See each 
 * **LMESimulation_04_ExtractModelOutput.R**:
   * sampleN1_subN50_modelOutput.csv
   * sampleN1_subN50_trialCount.csv
-  * Note: The filenames for these two output files reflect the number of simulated samples that were inputted into the script. In this example, the script was run with only 1 sample (sample 0443). 
+  * Note: These two filenames reflect the number of simulated samples that were inputted into the script. In this example, the script was run with only 1 sample (sample 0443). 
