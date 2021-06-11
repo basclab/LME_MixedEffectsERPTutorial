@@ -94,9 +94,9 @@ saveFolder='C:/Users/basclab/Desktop/LMESimulation/MeanAmpOutput_Final'
 for (meanAmpFile in meanAmpDir) { # Loop through each sample
   # Extract sample ID number from filename (e.g., extract '0001' from
   # 'C:/Users/basclab/Desktop/LME_Simulation/MeanAmpOutput_PreMerge/Sample0001-MeanAmpOutput_PreMerge.txt')
-  sampleNum <- str_sub(meanAmpFile,-31,-28)
+  sampleID <- str_sub(meanAmpFile,-31,-28)
   # Create filename for final dataframe
-  saveFilename = paste0(saveFolder, '/Sample', sampleNum, '-MeanAmpOutput.csv')
+  saveFilename = paste0(saveFolder, '/Sample', sampleID, '-MeanAmpOutput.csv')
   
 # 1. IMPORT EACH SAMPLE'S MEAN AMPLITUDE .TXT FILE 
   
@@ -116,7 +116,7 @@ for (meanAmpFile in meanAmpDir) { # Loop through each sample
   
 # 3. IMPORT EACH SAMPLE'S SUBJECT DATA LOG .TXT FILE AND MERGE WITH THE DATAFRAME
   
-  subjectDataLog <- fread(paste0(importSubjectDataLogFolder,'/Sample',sampleNum,'-SubjectDataLog.txt'), colClasses=c(SUBJECTID="character"))
+  subjectDataLog <- fread(paste0(importSubjectDataLogFolder,'/Sample',sampleID,'-SubjectDataLog.txt'), colClasses=c(SUBJECTID="character"))
   dfOriginalRaw <- merge(dfOriginalRaw, subjectDataLog, by = "SUBJECTID")
   
   dfOriginal <-  select(dfOriginalRaw, -(c(value, eventBin, binlabel))) # Remove columns not needed for export
