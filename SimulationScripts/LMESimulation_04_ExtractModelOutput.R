@@ -32,15 +32,16 @@
       # - SUBJECTID: Simulated subject ID (e.g., 01, 02, ...)
       # - age: Simulated age group (e.g., youngerAgeGroup, olderAgeGroup)
       # - emotion: Simulated emotion condition (i.e., A, B)
-      # - ACTOR: Simulated stimulus actor ID (i.e., 1, 2, 3, 4, 5)
+      # - ACTOR: Simulated stimulus actor ID (i.e., 01, 02, 03, 04, 05)
       # - presentNumber: Presentation number of specific stimulus (emotion 
       #   condition/actor) ranging from 1 to 10
       # - meanAmpNC: Simulated mean amplitude value (in units of microvolts)
   # - saveFolder: Folder for saving the output files (see below) from the script. 
-  # - See instructions in step 1 for specifying the simulation parameters used 
-  #   in the LMESimulation_02_SimulateERPData.m script and the parameters
-  #   for inducing trial missingness (missingness pattern: MAR or MCAR; 
-  #   percentage of subjects with low trial-count, e.g., 6%)
+  # - See instructions in step 1 for specifying the original simulation 
+  #   parameters from the MATLAB scripts (e.g., number of subjects per sample).
+  #   Additional parameters are required for inducing missing data: missingness
+  #   pattern (missing at random, MAR, or missing completely at random, MCAR)
+  #   and percentage of subjects with low trial-count.
 
 # Script Functions:
   # 1. Define simulation-level variables
@@ -143,8 +144,9 @@ emotionAvgValue <- c(mean(seq(emotionA, emotionA+(emotionSlope*(presentN-1)), by
                      mean(seq(emotionB, emotionB+(emotionSlope*(presentN-1)), by = emotionSlope)))
 
 # Specify probability weight distribution for presentation numbers 6-10 vs.
-# 1-5. These weights (e.g., presentNumberWeight6to10 and presentNumberWeight1to5)
-# sum to 1 and are used to specify MAR or MCAR missingness.
+# 1-5. These weights (i.e., presentNumberWeight6to10 and presentNumberWeight1to5)
+# sum to 1 and are used to specify MAR or MCAR missingness for the within-subjects 
+# effect. 
   # - For example, if presentNumberWeight6to10 = 0.7 and presentNumberWeight1to5 = 0.3,
   #   then 70% of missing trials are from presentation numbers 6-10 and 30% of 
   #   trials are from presentation numbers 1-5 (MAR missingness).
@@ -154,22 +156,26 @@ presentNumberWeight6to10 <- 0.7
 presentNumberWeight1to5 <- 1-presentNumberWeight6to10
 # Calculate the total number of trials per condition for each group of presentation
 # numbers (i.e., 6-10 and 1-5). This value is used to scale each individual trial's 
-# presentation number weight so that the weights will sum to 1 (see lines 479-481). 
+# presentation number weight so that the weights will sum to 1 (see lines 485-487). 
 presentNumberTrials6to10 <- emotionTrialN/2 
 presentNumberTrials1to5 <- emotionTrialN/2 
 
 # Specify probability weight distribution for younger vs. older age group. These 
-# weights are also used to specify MAR or MCAR missingness. 
+# weights are used to specify MAR or MCAR missingness for the between-subjects 
+# effect (e.g., if ageWeightYounger = 0.7, then 70% of subjects selected for more
+# missing trials and subsequent casewise deletion were from the younger age group). 
 ageWeightYounger <- 0.5
 ageWeightOlder <- 1-ageWeightYounger
 # Calculate the total number of subjects in the younger and older age groups. This
 # value is used to scale each subject's age weight so that the weights will sum to 
-# 1 (see lines 482-483).
+# 1 (see lines 488-489).
 ageTrialsYounger <- subjectN/2
 ageTrialsOlder <- subjectN/2
 
-# Specify percentage of subjects with low trial-count (i.e., subjects with less
-# than 10 trials/condition who will be removed during casewise deletion). 
+# Specify percent of subjects with low trial-count (i.e., subjects with less
+# than 10 trials/condition who will be removed during casewise deletion). The
+# script will loop through each value in this array and generate a corresponding
+# dataset with missing trials. 
 caseDeletionPctArray <- c(0, 6, 11, 32)
 
 #------------------------------------------------------------------------
@@ -178,15 +184,15 @@ caseDeletionPctArray <- c(0, 6, 11, 32)
 # induceMissingTrials: Function to randomly select subjects for inducing
 # low trial counts and subsequent casewise deletion prior to ANOVA analysis. 
 # In addition, missing trials are induced based on the specified probability
-# weights from lines 145-169 and 479-483. 
+# weights from lines 146-173 and 485-489. 
 # - Format: 
 #     list[dfMissing, subjectCaseDeletion, trialCount] <- induceMissingTrials(dfOriginal, caseDeletionPct) 
 # - Inputs:
   # - dfOriginal: Dataframe with the simulated "population" dataset before any
   #   induced missing trials (see Outputs section at the top of the script for
   # more information). 
-  # - caseDeletionPct: A percentage (e.g., 6) used to specify the proportion 
-  #   of subjects with low trial-count (i.e., less than 10 trials/condition).
+  # - caseDeletionPct: Percent of subjects with low trial-count (i.e., less than
+  #   10 trials/condition).
 # - Outputs: List containing three elements:
   # - dfMissing: A copy of the dfOriginal after missing trials have been induced. 
   #   Rows with missing trials have a meanAmpNC value of NA.
@@ -394,8 +400,8 @@ extractModelOutput <- function(modelInput, modelType) {
   # - dfOriginal: Dataframe containing one simulated sample's data before any 
   #   induced missing trials (see Outputs section at the top of the script for
   #   more information). 
-  # - caseDeletionPct: A percentage (e.g., 6) used to specify the proportion 
-  #   of subjects with low trial-count (i.e., less than 10 trials/condition).
+  # - caseDeletionPct: Percent of subjects with low trial-count (i.e., less than
+  #   10 trials/condition).
 # - Outputs:
   # - modelOutput_misData: Dataframe combining LME and ANOVA outputs from the
   #   extractModelOutput function. It contains the following columns:

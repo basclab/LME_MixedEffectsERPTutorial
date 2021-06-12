@@ -43,7 +43,7 @@
         % - sampleN: Number of simulated samples.
         % - sampleStart: Sample ID for first simulated sample (e.g., the first
         %   simulated sample will have an ID of #1).
-        % - subjectN: Number of simulated subjects/sample.
+        % - subjectN: Number of simulated subjects per sample.
     % - (Specified in simulateOneSubject function) Filepath to the following 
     %   file used during processing: 
         % - binDescriptorFilename: File specifying each bin's number, label, 
@@ -86,7 +86,7 @@
     %   There is one file for each simulated sample. Each file contains the 
     %   following columns:
         % - SUBJECTID: Simulated subject ID (e.g., 01, 02, …).
-        % - age: Simulated age group (e.g., youngerAgeGroup, olderAgeGroup).
+        % - age: Simulated age group (i.e., youngerAgeGroup, olderAgeGroup).
     % - (Optional) .erp files containing the trial-level waveforms for all
     %   subjects in a sample. There is one file for each simulated sample
     %   and they are saved directly in the saveFolder specified above (not
@@ -130,7 +130,7 @@ sampleN = 50; % Number of simulated samples
 % 1 simulates samples #1-500 and computer 2 simulates samples #501-750). 
 sampleStart = 1; 
 
-% Number of simulated subjects/sample. In this simulation, this variable is
+% Number of simulated subjects per sample. In this simulation, this variable is
 % even because we are dividing half of the subjects into the younger and
 % older age groups (see simulateOneSample function for more information).
 subjectN = 50; 

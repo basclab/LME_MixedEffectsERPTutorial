@@ -32,7 +32,7 @@
 
 % Inputs:
     % - sampleN: Number of simulated samples.
-    % - subjectN: Number of simulated subjects/sample.
+    % - subjectN: Number of simulated subjects per sample.
     % - saveFolder: Folder for saving simulated data output files.
     %   This parent folder has two subfolders: MeanAmpOutput_PreMerge
     %   and SubjectDataLog, which are used for saving the corresponding
@@ -96,7 +96,7 @@
     %   There is one file for each simulated sample. Each file contains the 
     %   following columns:
         % - SUBJECTID: Simulated subject ID (e.g., 01, 02, …).
-        % - age: Simulated age group (e.g., youngerAgeGroup, olderAgeGroup).
+        % - age: Simulated age group (i.e., youngerAgeGroup, olderAgeGroup).
     % - (Optional) .erp files containing the trial-level waveforms for all
     %   subjects in a sample. There is one file for each simulated sample
     %   and they are saved directly in the saveFolder specified above (not

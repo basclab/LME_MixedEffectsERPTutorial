@@ -41,9 +41,9 @@
   #   lowercase variables describe fixed effects (e.g., emotion) and capital-letter variables
   #   describe random effects (e.g., SUBJECTID).
     # - SUBJECTID: Simulated subject ID (e.g., 01, 02, ...)
-    # - age: Simulated age group (e.g., youngerAgeGroup, olderAgeGroup)
+    # - age: Simulated age group (i.e., youngerAgeGroup, olderAgeGroup)
     # - emotion: Simulated emotion condition (i.e., A, B)
-    # - ACTOR: Simulated stimulus actor ID (i.e., 1, 2, 3, 4, 5)
+    # - ACTOR: Simulated stimulus actor ID (i.e., 01, 02, 03, 04, 05)
     # - presentNumber: Presentation number of specific stimulus (emotion 
     #   condition/actor) ranging from 1 to 10
     # - meanAmpNC: Simulated mean amplitude value (in units of microvolts)
@@ -112,20 +112,18 @@ for (meanAmpFile in meanAmpDir) { # Loop through each sample
   dfOriginalRaw$presentNumber <- as.numeric(substr(dfOriginalRaw$eventBin,4,5)) # Extract presentation number (e.g, 01)
   
   dfOriginalRaw$emotion <- as.factor(ifelse(dfOriginalRaw$emotion == '3', 'B', 'A')) # Convert emotion condition ID (e.g., 3) to a label (e.g., "B")
-  dfOriginalRaw$meanAmpNC <- dfOriginalRaw$value # Create a column named meanAmpNC for export
+  dfOriginalRaw$meanAmpNC <- dfOriginalRaw$value # Create a meanAmpNC column for exporting mean amplitude values
   
 # 3. IMPORT EACH SAMPLE'S SUBJECT DATA LOG .TXT FILE AND MERGE WITH THE DATAFRAME
   
   subjectDataLog <- fread(paste0(importSubjectDataLogFolder,'/Sample',sampleID,'-SubjectDataLog.txt'), colClasses=c(SUBJECTID="character"))
   dfOriginalRaw <- merge(dfOriginalRaw, subjectDataLog, by = "SUBJECTID")
   
-  dfOriginal <-  select(dfOriginalRaw, -(c(value, eventBin, binlabel))) # Remove columns not needed for export
-
 # 4. SAVE FINAL LONG DATAFRAME AS A .CSV FILE
   
-  # Specify the column order in the exported file
+  # Specify the columns that we want to save in the exported file
   columnOrder <- c("SUBJECTID","age","emotion","ACTOR","presentNumber","meanAmpNC")
-  dfOriginal <- dfOriginal[, ..columnOrder] # Reorder columns
+  dfOriginal <- dfOriginalRaw[, ..columnOrder] 
   
   fwrite(dfOriginal, file = saveFilename, row.names = FALSE) # Save long dataframe in desired folder
   

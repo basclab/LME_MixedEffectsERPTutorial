@@ -17,7 +17,7 @@
     % - sampleN: Number of simulated samples.
     % - sampleStart: Sample ID for first simulated sample (e.g., the first
     %   simulated sample will have an ID of #1).
-    % - subjectN: Number of simulated subjects/sample.
+    % - subjectN: Number of simulated subjects per sample.
     % - saveFolder: Folder for saving simulated data output files.
     %   This parent folder has two subfolders: MeanAmpOutput_PreMerge
     %   and SubjectDataLog, which are used for saving the corresponding
