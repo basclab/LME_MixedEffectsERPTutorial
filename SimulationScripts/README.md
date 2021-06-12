@@ -38,7 +38,7 @@ A brief description of each script is listed below. Each script also has comment
 
 ## Suggested folder structure
 We recommend creating a parent folder for storing the following files:
-* The 6 MATLAB and R simulation scripts
+* The 7 MATLAB and R simulation scripts
 * **LMESimulation_EventMarkerMappingKey.xlsx**: Lists the event marker preceding codes corresponding to each stimulus. This file is used for creating the bin descriptor file in the LMESimulation_01_CreateBinDescriptorFile.m script.
 * **LMESimulation_BinDescriptorFile.txt**: Lists each ERP bin’s number, label, and event markers. This file is created during the LMESimulation_01_CreateBinDescriptorFile.m script and is required for the simulateOneSubject function.
 * **LMESimulation_BinDescriptorFileKey.xlsx**: Documents the information in the bin descriptor file. This file is created during the LMESimulation_01_CreateBinDescriptorFile.m script.
