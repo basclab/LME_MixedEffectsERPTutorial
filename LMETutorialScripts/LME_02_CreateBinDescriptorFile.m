@@ -93,7 +93,7 @@ eventMarkerMapping = readtable(eventMarkerMappingFilename, opts, 'Sheet', 'Exper
 presentNumber = 10; 
 presentNumberArray = pad(string(1:presentNumber),2,'left','0')'; % Create a formatted string array containing the specified presentation numbers
 
-% Create a table structure for saving bin numbers/labels and the
+% Create a table structure for saving bin numbers and labels and the
 % corresponding 5-digit event markers belonging to each bin
 binDescriptorTable = table({}, {}, {},'VariableNames',{'binNumber','binLabel','eventMarker'});
 

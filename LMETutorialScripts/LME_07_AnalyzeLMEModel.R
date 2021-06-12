@@ -1,32 +1,37 @@
 # LME Tutorial Script: 7. Analyze LME Model 
 
-# This script imports a simulated mean amplitude file, induces missing trials in
-# the dataset, and fits an linear mixed effects (LME) model to the trial-level 
-# dataset. Then casewise deletion is performed (subjects with less than 10 trials/
-# emotion condition are removed) and the trial-averaged dataset is used to fit
-# an ANOVA model. The estimated marginal means are extracted from each model. 
-# This script illustrates the ANOVA's biased estimated marginal means when data 
-# is missing at random (MAR) vs. LME's unbiased est. marginal means. 
+# This script imports a simulated mean amplitude file and induces missing trials
+# based on the specified missingness pattern (e.g., missing at random for within-
+# and between-subjects effects) and percentage of subjects with low trial-count 
+# (e.g., 6% of subjects are induced to have less than 10 trials/condition 
+# remaining). Then, an linear mixed effects (LME) model is fitted to the 
+# trial-level dataset. Next, casewise deletion is performed (subjects with less
+# than 10 trials/emotion condition are removed) and the trial-averaged dataset 
+# is used to fit an ANOVA model. Estimated marginal means are extracted for each
+# emotion condition and model. This script illustrates the ANOVA's biased 
+# estimated marginal means when data is missing at random (MAR) vs. LME's 
+# unbiased est. marginal means. 
 
-# The code is adapted from the LMESimulation_03_ExtractModelOutput script saved
-# in the LMESimulationScripts folder.
+# The code is adapted from the LMESimulation_04_ExtractModelOutput script saved
+# in the SimulationScripts folder.
 
 # ***See Appendix D from Heise, Mon, and Bowman (submitted) for additional details. ***
 
 # Requirements: 
-  # - filename: One simulated sample's .txt file containing the following columns, 
+  # - filename: One simulated sample's .csv file containing the following columns, 
   #   which are labelled based on the convention that lowercase variables describe 
   #   fixed effects (e.g., emotion) and capital-letter variables describe random 
   #   effects (e.g., SUBJECTID):
     # - SUBJECTID: Simulated subject ID (e.g., 01, 02, ...)
-    # - age: Simulated age group (e.g., youngerAgeGroup, olderAgeGroup)
+    # - age: Simulated age group (i.e., youngerAgeGroup, olderAgeGroup)
     # - emotion: Simulated emotion condition (i.e., A, B)
-    # - ACTOR: Simulated stimulus actor ID (i.e., 1, 2, 3, 4, 5)
+    # - ACTOR: Simulated stimulus actor ID (i.e., 01, 02, 03, 04, 05)
     # - presentNumber: Presentation number of specific stimulus (emotion 
     #   condition/actor) ranging from 1 to 10
     # - meanAmpNC: Simulated mean amplitude value (in units of microvolts)
-  # - See instructions in step 5 and 6 for specifying the missingness pattern (MAR 
-  #   or MCAR) and low trial-count/casewise deleted subjects, respectively
+  # - See instructions in steps 5 and 6 for specifying the missingness pattern 
+  #   (missing at random, MAR, or missing completely at random, MCAR) and
+  #   percentage of subjects with low trial-count, respectively
 
 # Script Functions:
   # 1. Define function for inducing missing trials
@@ -35,7 +40,7 @@
   # 4. Fit ANOVA model with averaged population dataset
   # 5. Specify missingness pattern (MCAR or MAR)
   # 6. Induce missing data based on specified missingness pattern and percentage
-  #    of low trial-count/casewise deleted subjects
+  #    of subjects with low trial-count
   # 7. Fit LME model with trial-level dataset after inducing trial missingness
   # 8. Casewise delete subjects with less than 10 trials/emotion condition
   # 9. Fit ANOVA model with averaged dataset after inducing trial missingness and 
@@ -46,8 +51,7 @@
   # - Estimated marginal means for each emotion condition and model (LME, ANOVA)
   #   for the following datasets:
       # - Population dataset (full dataset without missing trials)
-      # - Dataset with the specified level of low trial-count subjects/casewise 
-      #   deletion percentage
+      # - Dataset with the specified percentage of subjects with low trial-count
   # - Plot of the estimated marginal means for each emotion condition/model/dataset
 
 # Copyright 2021 Megan J. Heise, Serena K. Mon, Lindsay C. Bowman
@@ -86,27 +90,27 @@ library(ggplot2) # used for plotting
 #-----------------------------------------------------------------------
 # 1. DEFINE FUNCTION FOR INDUCING MISSING TRIALS
 
-# induceMissingTrials: Function to randomly select subjects with low trial-counts
-# who will be casewise deleted prior to ANOVA analysis. In addition, missing
-# trials are induced based on the specified probability weights in steps 5 and 6
-# below. 
+# induceMissingTrials: Function to randomly select subjects for inducing
+# low trial counts and subsequent casewise deletion prior to ANOVA analysis. 
+# In addition, missing trials are induced based on the specified probability
+# weights from step 5 below. 
 # - Format: 
 #     list[dfMissing, subjectCaseDeletion, trialCount] <- induceMissingTrials(dfOriginal, caseDeletionPct) 
 # - Inputs:
   # - dfOriginal: Dataframe with the simulated "population" dataset before any
-  #   induced missing trial (see header code documentation for more information
-  #   about its columns).
-  # - caseDeletionPct: A percentage (e.g., 6) used to specify the proportion 
-  #   of subjects that will be casewise deleted based on 10 trials/condition threshold
+  #   induced missing trials (see Outputs section at the top of the script for
+  #   more information). 
+  # - caseDeletionPct: Percent of subjects with low trial-count (i.e., less than
+  #   10 trials/condition).
 # - Outputs: List containing three elements:
   # - dfMissing: A copy of the dfOriginal after missing trials have been induced. 
   #   Rows with missing trials have a meanAmpNC value of NA.
   # - subjectCaseDeletion: Array of subject IDs that have been randomly selected
-  #   for low trial counts/casewise deletion.
+  #   for low trial counts.
   # - trialCount: Long dataframe listing the remaining number of trials per
-  #   subject/emotion condition after inducing missing trials. It contains the 
-  #   following columns: SUBJECTID, emotion, trialN (see header code documentation
-  #   for more information). 
+  #   subject and emotion condition after inducing missing trials. It contains the 
+  #   following columns: SUBJECTID, emotion, trialN (see Outputs section at the
+  #   top of the script for more information). 
 induceMissingTrials <- function(dfOriginal, caseDeletionPct) {
   # Create copy of the dfOriginal dataframe for inducing missing trials
   dfMissing <- data.frame(dfOriginal)
@@ -115,19 +119,20 @@ induceMissingTrials <- function(dfOriginal, caseDeletionPct) {
   dfAgeWeight <- aggregate(ageWeight ~ SUBJECTID, dfOriginal, mean, 
                            na.action = na.omit)
   
-  # Calculate the number of casewise deleted subjects by multiplying caseDeletionPct
+  # Calculate the number of low trial-count subjects by multiplying caseDeletionPct
   # by the total number of subjects. If this value is not an integer, the output
   # is rounded up. 
   caseDeletionN <- ceiling((caseDeletionPct/100)*subjectN)
   
-  # Randomly sample the subject IDs that will be casewise deleted based on the 
-  # specified age weights and the number of casewise deleted subjects
+  # Randomly sample the subject IDs that will have low trial counts based on the 
+  # specified age weights and the caseDeletionN variable
   subjectCaseDeletion <- sample(dfAgeWeight$SUBJECTID, caseDeletionN, 
                                 replace = FALSE, prob=dfAgeWeight$ageWeight)
   
   # Calculate the maximum number of trials that can be removed from each condition
-  # before the subject is casewise deleted (e.g., if there are 50 trials, a 
-  # maximum of 40 trials can be removed for an included (not casewise deleted) subject)
+  # before the subject is considered to have a low trial count and would be
+  # casewise deleted (e.g., if there are 50 trials, a maximum of 40 trials can
+  # be removed for an included (not casewise deleted) subject)
   trialMissingThreshold <- emotionTrialN - 10
   
   # Loop through each subject and randomly select a subset of trials from each
@@ -137,13 +142,13 @@ induceMissingTrials <- function(dfOriginal, caseDeletionPct) {
     # Generate the number of missing trials to induce for each emotion condition
     if (subject %in% subjectCaseDeletion) { 
       
-      # If subject will be casewise deleted, at least one emotion condition will 
-      # have less 10 trials remaining.
+      # For subjects with a low trial count, at least one emotion condition will 
+      # have less 10 trials remaining
       trialMissing <- c(sample(x=(trialMissingThreshold+1):emotionTrialN, size = 1),
                         sample(x=0:emotionTrialN, size = emotionN-1, replace = TRUE))                       
     } else { 
-      # If subject will not be casewise deleted, all emotion conditions will 
-      # have at least 10 trials
+      # For subjects who do NOT have a low trial count, all emotion conditions
+      # will have at least 10 trials
       trialMissing <- sample(x=0:trialMissingThreshold, size = emotionN, 
                              replace = TRUE)
     }
@@ -158,10 +163,10 @@ induceMissingTrials <- function(dfOriginal, caseDeletionPct) {
       
       if (emotionTrialMissing != 0) { # If this emotion condition was not selected to have 0 missing trials
         
-        # Find this subject/condition's rows in the dataframe
+        # Find this subject and condition's rows in the dataframe
         subjectIndex <- which(dfMissing$SUBJECTID==subject & dfMissing$emotion==emotionLabelRand[j])
         
-        # Extract the presentation number probability weights for this subject/condition
+        # Extract the presentation number probability weights for this subject and condition
         subjectProbWeight <- dfMissing$presentNumberWeight[subjectIndex]
         
         # Randomly select the missing trials based on the specified probability 
@@ -175,7 +180,7 @@ induceMissingTrials <- function(dfOriginal, caseDeletionPct) {
     }
   }
   
-  # Save the number of trials remaining for each subject/condition in a dataframe
+  # Save the number of trials remaining for each subject and condition in a dataframe
   trialCount <- ddply(dfMissing, .(SUBJECTID, emotion), summarize, 
                       trialN = sum(!is.na(meanAmpNC)))
   names(trialCount)[3] <- 'trialN' # Update column name to trialN
@@ -183,12 +188,11 @@ induceMissingTrials <- function(dfOriginal, caseDeletionPct) {
   return(list(dfMissing, subjectCaseDeletion, trialCount)) # Return output variables
 }
 
-
 #-----------------------------------------------------------------------
 # 2. LOAD SIMULATED DATA FILE
 
 # Specify filepath of simulated data file
-filename <- 'C:/Users/basclab/Desktop/LMETutorial/Sample0443-MeanAmpOutput.txt'
+filename <- 'C:/Users/basclab/Desktop/LMETutorial/Sample0443-MeanAmpOutput.csv'
 
 # Import data sample ("population" dataset)
 dfOriginal <- fread(filename) 
@@ -205,7 +209,7 @@ contrasts(dfOriginal$age) <- contr.Sum(levels(dfOriginal$age))
 # 3. FIT LME MODEL WITH TRIAL-LEVEL POPULATION DATASET
 # Restricted maximum likelihood (REML) is used to fit all LME models
 
-fit.LMEPop <- lmer(meanAmpNC ~   emotion + presentNumber + age + (1|SUBJECTID) + 
+fit.LMEPop <- lmer(meanAmpNC ~ emotion + presentNumber + age + (1|SUBJECTID) + 
                      (1|ACTOR), data=dfOriginal, REML = TRUE)
 
 # Calculate estimated marginal means for each emotion condition and pairwise 
@@ -246,11 +250,14 @@ summary(pairs(mANOVAPop, infer = c(TRUE, TRUE)))
 #-----------------------------------------------------------------------
 # 5. SPECIFY MISSINGNESS PATTERN (MCAR OR MAR)
 
+set.seed(20210329) # Specify seed for reproducible results
+
 # Specify probability weight distribution for presentation numbers 6-10 vs.
-# 1-5. These weights (e.g., presentNumberWeight6to10 and presentNumberWeight1to5)
-# sum to 1 and are used to specify MAR or MCAR missingness.
+# 1-5. These weights (i.e., presentNumberWeight6to10 and presentNumberWeight1to5)
+# sum to 1 and are used to specify MAR or MCAR missingness for the within-subjects 
+# effect. 
 # - For example, if presentNumberWeight6to10 = 0.7 and presentNumberWeight1to5 = 0.3,
-#   then 70% of missing trials belong to presentation numbers 6-10 and 30% of 
+#   then 70% of missing trials are from presentation numbers 6-10 and 30% of 
 #   trials are from presentation numbers 1-5 (MAR missingness).
 # - If both weight variables are equal to 0.5, an equal number of missing trials 
 #   are drawn from each presentation number (MCAR missingness).
@@ -259,26 +266,26 @@ presentNumberWeight1to5 <- 1-presentNumberWeight6to10
 
 # Calculate the total number of trials per condition for each group of presentation
 # numbers (i.e., 6-10 and 1-5). This value is used to scale each individual trial's 
-# presentation number weight so that the weights will sum to 1 (see lines 282-284). 
+# presentation number weight so that the weights will sum to 1 (see lines 289-291). 
 emotionTrialN <- length(unique(dfOriginal$ACTOR)) * length(unique(dfOriginal$presentNumber))  
 presentNumberTrials6to10 <- emotionTrialN/2 
 presentNumberTrials1to5 <- emotionTrialN/2 
 
 # Specify probability weight distribution for younger vs. older age group. These 
-# weights are also used to specify MAR or MCAR missingness (e.g., if 
-# ageWeightYounger = 0.7, then 70% of younger subjects are selected for more
-# missing trials and subsequent casewise deletion). 
+# weights are used to specify MAR or MCAR missingness for the between-subjects 
+# effect (e.g., if ageWeightYounger = 0.7, then 70% of subjects selected for more
+# missing trials and subsequent casewise deletion were from the younger age group). 
 ageWeightYounger <- 0.7
 ageWeightOlder <- 1-ageWeightYounger
 
 # Calculate the total number of subjects in the younger and older age groups. This
 # value is used to scale each subject's age weight so that the weights will sum to 
-# 1 (see lines 285-286).
+# 1 (see lines 292-293).
 subjectN <- length(unique(dfOriginal$SUBJECTID))
 ageTrialsYounger <- subjectN/2
 ageTrialsOlder <- subjectN/2
 
-# Add probability weights based on values specified above. 
+# Add probability weights based on values specified above
 dfOriginal$presentNumberWeight <- ifelse(dfOriginal$presentNumber > 5,
                                          (presentNumberWeight6to10/presentNumberTrials6to10), 
                                          (presentNumberWeight1to5/presentNumberTrials1to5))
@@ -288,13 +295,13 @@ dfOriginal$ageWeight <- ifelse(dfOriginal$age == 'youngerAgeGroup',
 
 #-----------------------------------------------------------------------
 # 6. INDUCE MISSING DATA BASED ON SPECIFIED MISSINGNESS PATTERN AND 
-#    PERCENTAGE OF LOW TRIAL-COUNT/CASEWISE DELETED SUBJECTS
+#    PERCENTAGE OF SUBJECTS WITH LOW TRIAL-COUNT
 
 # Define variables needed for induceMissingTrials function
 emotionLabel <- c("A", "B") # Name of each emotion condition
 emotionN <- length(emotionLabel) # Number of emotion conditions
 
-# Specify percentage of subjects with low trial counts who will be casewise deleted
+# Specify percent of subjects with low trial-count who will be casewise deleted
 caseDeletionPct <-  6 
 
 # Use induceMissingTrials function to remove trials based on specified missingness
@@ -329,7 +336,7 @@ dfCaseDeletion <- dfMissing[!(dfMissing$SUBJECTID %in% subjectCaseDeletion),]
 # 9. FIT ANOVA MODEL WITH AVERAGED DATASET AFTER INDUCING TRIAL MISSINGNESS AND
 #    CASEWISE DELETING SUBJECTS
 
-# Calculate dataset after averaging over trials
+# Calculate trial-averaged dataset
 dfCaseDeletionAvg <- aggregate(meanAmpNC ~ SUBJECTID + emotion + age, 
                                dfCaseDeletion, mean, na.action = na.omit)
 
@@ -351,8 +358,8 @@ summary(pairs(mANOVAMis, infer = c(TRUE, TRUE)))
 #------------------------------------------------------------------------
 # 10. PLOT ESTIMATED MARGINAL MEANS FOR LME AND ANOVA MODELS
 
-# Create separate dataframes with estimated marginal means for each model/
-# population and percentage of low trial-count/casewise deleted subjects
+# Create separate dataframes with estimated marginal means for each LME and 
+# ANOVA model
 margMeansLMEPop <- summary(mLMEPop)$emmeans
 margMeansLMEPop$modelType <- 'LME'
 margMeansLMEPop$caseDeletionPct <- 'Pop.'
@@ -387,7 +394,7 @@ ggplot(dfMargMeansSummary, aes(x=caseDeletionPct, y=emmean, color=modelType)) +
                 position=position_dodge(width=0.09)) +
   facet_grid(cols = vars(emotion)) +
   geom_point(size = 1, position=position_dodge(width=0.09)) + 
-  scale_x_discrete(name="Percentage of Low Trial-Count/Casewise Deleted Subjects") +
+  scale_x_discrete(name="Percent of Subjects with Low Trial-Count") +
   scale_y_continuous(name="Model Means for Simulated NC Mean Amplitude (µV)", 
                      limits=c(-15, 7)) +
   scale_color_manual("Model", values = modelColors) + 
