@@ -2,7 +2,7 @@
 
 # This script imports each simulated data sample's mean amplitude file and 
 # induces missing trials based on the specified missingness pattern 
-# (e.g., missing at random for within- and between-subjects effects) and 
+# (e.g., more missing data in later trials and in younger subjects) and 
 # percentage of subjects with low trial-count (e.g., 6% of subjects are induced
 # to have less than 10 trials/condition remaining). Then, an linear mixed 
 # effects (LME) model is fitted to the trial-level dataset. Next, casewise 
@@ -40,8 +40,9 @@
   # - See instructions in step 1 for specifying the original simulation 
   #   parameters from the MATLAB scripts (e.g., number of subjects per sample).
   #   Additional parameters are required for inducing missing data: missingness
-  #   pattern (missing at random, MAR, or missing completely at random, MCAR)
-  #   and percentage of subjects with low trial-count.
+  #   pattern (more missing data in later trials and/or in younger subjects or 
+  #   data missing completely at random (MCAR)) and percentage of subjects with
+  #   low trial-count.
 
 # Script Functions:
   # 1. Define simulation-level variables
@@ -145,30 +146,30 @@ emotionAvgValue <- c(mean(seq(emotionA, emotionA+(emotionSlope*(presentN-1)), by
 
 # Specify probability weight distribution for presentation numbers 6-10 vs.
 # 1-5. These weights (i.e., presentNumberWeight6to10 and presentNumberWeight1to5)
-# sum to 1 and are used to specify MAR or MCAR missingness for the within-subjects 
+# sum to 1 and are used to specify missingness pattern for the within-subjects 
 # effect. 
   # - For example, if presentNumberWeight6to10 = 0.7 and presentNumberWeight1to5 = 0.3,
   #   then 70% of missing trials are from presentation numbers 6-10 and 30% of 
-  #   trials are from presentation numbers 1-5 (MAR missingness).
+  #   trials are from presentation numbers 1-5.
   # - If both weight variables are equal to 0.5, an equal number of missing trials 
-  #   are drawn from each presentation number (MCAR missingness).
+  #   are drawn from each presentation number (MCAR).
 presentNumberWeight6to10 <- 0.7
 presentNumberWeight1to5 <- 1-presentNumberWeight6to10
 # Calculate the total number of trials per condition for each group of presentation
 # numbers (i.e., 6-10 and 1-5). This value is used to scale each individual trial's 
-# presentation number weight so that the weights will sum to 1 (see lines 485-487). 
+# presentation number weight so that the weights will sum to 1 (see lines 486-488). 
 presentNumberTrials6to10 <- emotionTrialN/2 
 presentNumberTrials1to5 <- emotionTrialN/2 
 
 # Specify probability weight distribution for younger vs. older age group. These 
-# weights are used to specify MAR or MCAR missingness for the between-subjects 
+# weights are used to specify missingness pattern for the between-subjects
 # effect (e.g., if ageWeightYounger = 0.7, then 70% of subjects selected for more
 # missing trials and subsequent casewise deletion were from the younger age group). 
 ageWeightYounger <- 0.5
 ageWeightOlder <- 1-ageWeightYounger
 # Calculate the total number of subjects in the younger and older age groups. This
 # value is used to scale each subject's age weight so that the weights will sum to 
-# 1 (see lines 488-489).
+# 1 (see lines 489-490).
 ageTrialsYounger <- subjectN/2
 ageTrialsOlder <- subjectN/2
 
@@ -184,7 +185,7 @@ caseDeletionPctArray <- c(0, 6, 11, 32)
 # induceMissingTrials: Function to randomly select subjects for inducing
 # low trial counts and subsequent casewise deletion prior to ANOVA analysis. 
 # In addition, missing trials are induced based on the specified probability
-# weights from lines 146-173 and 485-489. 
+# weights from lines 147-174 and 486-490. 
 # - Format: 
 #     list[dfMissing, subjectCaseDeletion, trialCount] <- induceMissingTrials(dfOriginal, caseDeletionPct) 
 # - Inputs:
@@ -469,7 +470,7 @@ for (sampleNum in 1:sampleN) { # Loop through each simulated data sample
   dfOriginal <- fread(fileDir[sampleNum]) 
   
   # Extract sample ID number from filename (e.g., extract '0001' from
-  # 'C:/Users/basclab/Desktop/LME_Simulation/MeanAmpOutput_Final/Sample0001-MeanAmpOutput.csv')
+  # 'C:/Users/basclab/Desktop/LMESimulation/MeanAmpOutput_Final/Sample0001-MeanAmpOutput.csv')
   sampleID <- str_sub(fileDir[sampleNum],-22,-19)
   
   # Specify desired columns as factors for subsequent analysis 
