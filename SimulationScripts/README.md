@@ -24,7 +24,7 @@ A brief description of each script is listed below. Each script also has comment
 
 *R scripts for organizing data files and fitting LME and ANOVA models*
 * **LMESimulation_03_OrganizeDataFiles.R**: Merges the mean amplitude output files and subject data log into one file. In addition, extracts subject ID and stimuli-related information for each trial and organizes them into variables for LME and ANOVA analysis.
-* **LMESimulation_04_ExtractModelOutput.R**: Imports each simulated sample’s data file, induces missing trials based on the specified missingness pattern (e.g., missing at random for within- and between-subjects effects) and percent of subjects with low trial-count, and fits LME and ANOVA models to the dataset. Estimated marginal means are extracted for each emotion condition and model.
+* **LMESimulation_04_ExtractModelOutput.R**: Imports each simulated sample’s data file, induces missing trials based on the specified missingness pattern (e.g., more missing data in later trials and in younger subjects) and percent of subjects with low trial-count, and fits LME and ANOVA models to the dataset. Estimated marginal means are extracted for each emotion condition and model.
   * This script also includes code for running a power analysis.
 
 ## Script requirements
@@ -46,7 +46,7 @@ We recommend creating a parent folder for storing the following files:
 We also recommend adding the following subfolders for storing output files:
 * **MeanAmpOutput_Final**: Contains the formatted mean amplitude output files combining information from the MeanAmpOutput_PreMerge and SubjectDataLog folders. There is one file for each simulated sample and files are created during the LMESimulation_03_OrganizeDataFiles.R script.
 * **MeanAmpOutput_PreMerge**: Contains each sample’s mean amplitude values per bin, channel, and subject. There is one file for each simulated sample and files are created by the simulateOneSample function. 
-* **ModelOutput**: Contains the two output files created during the LMESimulation_04_ExtractModelOutput.R script for a specified missingness pattern (e.g., missing at random for within- and between-subjects effects). 
+* **ModelOutput**: Contains the two output files created during the LMESimulation_04_ExtractModelOutput.R script for a specified missingness pattern (e.g., more missing data in later trials and in younger subjects). 
   * The model output file contains the LME and ANOVA models’ estimated marginal means for each emotion condition and percentage of subjects with low trial-count. Results from all simulated samples are stored in one file.
   * The trial count file lists the number of remaining trials per subject and emotion condition after inducing missing trials. Trial counts for all simulated samples are stored in one file.
 * **SubjectDataLog**: Contains each sample’s subject data log, which lists each subject’s assigned age group. There is one file for each simulated sample and files are created by the simulateOneSample function. 
