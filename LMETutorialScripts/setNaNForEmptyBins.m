@@ -89,7 +89,7 @@ function setNaNForEmptyBins(filename, rawFolderName, finalFolderName, acceptedTr
 
     % For peak amplitude output files only, the peak latency is also set to NaN
     if strcmp(outputMeasurement,'peak') 
-        outputFile.peakTimepoint(emptyBinIndex) = NaN;
+        outputFile.peakTimepoint(emptyBinIdx) = {'NaN'};
     end
    
     % Update filename to indicate that this is the final output file
