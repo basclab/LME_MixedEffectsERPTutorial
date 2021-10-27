@@ -12,14 +12,14 @@
 # (e.g., 30101):
   # - The first digit is the emotion condition (e.g., 3)
   # - The next two digits are the actor ID (e.g., 01)
-  # - The last two digits are the presentation number (e.g., 01, first presentation)
+  # - The last two digits are the presentation number (e.g., 01 = first presentation)
 
 # ***See Appendix D from Heise, Mon, and Bowman (submitted) for additional details. ***
 
 # Requirements: 
   # - importFolder: Folder containing mean amplitude output .txt files created 
   #   during the LME_05_MeasureERPs.m script. There is one file per subject.
-  # - saveLongDFFolder: Folder for saving the long dataframe (containing all 
+  # - saveFolderPath: Folder for saving the long dataframe (containing all 
   #   subjects' data) as a .csv file at the end of the script.
 
 # Script Functions:
@@ -34,7 +34,7 @@
   #   variables describe fixed effects (e.g., emotion) and capital-letter variables
   #   describe random effects (e.g., SUBJECTID).
     # - SUBJECTID: Subject ID (e.g., 01, 02, ...)
-    # - CHANNEL: Electrode channel (e.g., Cz)
+    # - channel: Electrode channel (e.g., Cz)
     # - emotion: Emotion condition (i.e., Angry, Fear, Happy, Neutral)
     # - ACTOR: Stimulus actor (e.g., 01, 02, ...)
     # - presentNumber: Presentation number of a specific stimulus (emotion condition/
@@ -76,13 +76,13 @@ fileDir <- list.files(path = importFolder, pattern = ".txt", full.names = TRUE,
 
 # Specify folder location and filename for saving long dataframe
 saveFolderPath <- 'C:/Users/basclab/Desktop/LMETutorial'
-saveFilename <- paste0(saveFolderPath,'/MeanAmpNC_LongDF.csv')
+saveFilename <- paste0(saveFolderPath,'/MeanAmpNC_LongDFWithAllSubjects.csv')
 
 #------------------------------------------------------------------------
 # 1. IMPORT EACH SUBJECT'S MEAN AMPLITUDE .TXT FILE AND MERGE INTO A LONG
 #    DATAFRAME
 
-# Create empty data frame for storing all subjects' data. 
+# Create empty dataframe for storing all subjects' data. 
 allSubjectsDF <- data.frame(character(0))
 
 for (filename in fileDir) { # Loop through each subject's file 
@@ -126,9 +126,10 @@ allSubjectsDF_subset$presentNumber <- substr(allSubjectsDF_subset$binLabel,4,5)
 # Create a meanAmpNC column for exporting mean amplitude values
 allSubjectsDF_subset$meanAmpNC <- allSubjectsDF_subset$value 
 
-# Create a column named "CHANNEL" based on lab naming conventions 
-# (random effects are capital-letter variables)
-allSubjectsDF_subset$CHANNEL <- allSubjectsDF_subset$channelLabel
+# Create a channel column. In this example, channel only has 3 levels: C3, Cz, C4).
+# Due to the low number of levels, we include channel as a fixed effect based on
+# recommendations from previous literature (Volpert-Esmond et al., 2021)
+allSubjectsDF_subset$channel <- allSubjectsDF_subset$channelLabel
 
 # Convert emotion condition ID (e.g., 3) to a descriptive label (e.g., "Angry")
 allSubjectsDF_subset$emotion <- revalue(allSubjectsDF_subset$emotion, 
@@ -139,7 +140,7 @@ allSubjectsDF_subset$emotion <- revalue(allSubjectsDF_subset$emotion,
 # 3. SAVE THE LONG DATAFRAME AS A .CSV FILE
 
 # Specify the columns that we want to save in the exported file
-column <- c("SUBJECTID","CHANNEL", "emotion","ACTOR",
+column <- c("SUBJECTID","channel","emotion","ACTOR",
                "presentNumber","meanAmpNC")
 allSubjectsDF_final <- allSubjectsDF_subset[, column]
 

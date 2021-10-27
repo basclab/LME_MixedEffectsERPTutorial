@@ -1,16 +1,16 @@
 # LME Tutorial Script: 7. Analyze LME Model 
 
 # This script imports a simulated mean amplitude file and induces missing trials
-# based on the specified missingness pattern (e.g., missing at random for within-
-# and between-subjects effects) and percentage of subjects with low trial-count 
+# based on the specified missingness pattern (e.g., more missing data in later 
+# trials and in younger subjects) and percentage of subjects with low trial-count 
 # (e.g., 6% of subjects are induced to have less than 10 trials/condition 
 # remaining). Then, an linear mixed effects (LME) model is fitted to the 
 # trial-level dataset. Next, casewise deletion is performed (subjects with less
 # than 10 trials/emotion condition are removed) and the trial-averaged dataset 
 # is used to fit an ANOVA model. Estimated marginal means are extracted for each
 # emotion condition and model. This script illustrates the ANOVA's biased 
-# estimated marginal means when data is missing at random (MAR) vs. LME's 
-# unbiased est. marginal means. 
+# estimated marginal means when data is not missing completely at random vs. LME's 
+# unbiased estimated marginal means. 
 
 # The code is adapted from the LMESimulation_04_ExtractModelOutput script saved
 # in the SimulationScripts folder.
@@ -30,15 +30,16 @@
     #   condition/actor) ranging from 1 to 10
     # - meanAmpNC: Simulated mean amplitude value (in units of microvolts)
   # - See instructions in steps 5 and 6 for specifying the missingness pattern 
-  #   (missing at random, MAR, or missing completely at random, MCAR) and
-  #   percentage of subjects with low trial-count, respectively
+  #   (more missing data in later trials and/or in younger subjects or data
+  #   missing completely at random (MCAR)) and percentage of subjects with low
+  #   trial-count, respectively
 
 # Script Functions:
   # 1. Define function for inducing missing trials
   # 2. Load simulated data file
   # 3. Fit LME model with trial-level population dataset
   # 4. Fit ANOVA model with averaged population dataset
-  # 5. Specify missingness pattern (MCAR or MAR)
+  # 5. Specify missingness pattern 
   # 6. Induce missing data based on specified missingness pattern and percentage
   #    of subjects with low trial-count
   # 7. Fit LME model with trial-level dataset after inducing trial missingness
@@ -143,7 +144,7 @@ induceMissingTrials <- function(dfOriginal, caseDeletionPct) {
     if (subject %in% subjectCaseDeletion) { 
       
       # For subjects with a low trial count, at least one emotion condition will 
-      # have less 10 trials remaining
+      # have less than 10 trials remaining
       trialMissing <- c(sample(x=(trialMissingThreshold+1):emotionTrialN, size = 1),
                         sample(x=0:emotionTrialN, size = emotionN-1, replace = TRUE))                       
     } else { 
@@ -209,12 +210,13 @@ contrasts(dfOriginal$age) <- contr.Sum(levels(dfOriginal$age))
 # 3. FIT LME MODEL WITH TRIAL-LEVEL POPULATION DATASET
 # Restricted maximum likelihood (REML) is used to fit all LME models
 
-fit.LMEPop <- lmer(meanAmpNC ~ emotion + presentNumber + age + (1|SUBJECTID) + 
+fit.LMEPop <- lmer(meanAmpNC ~ emotion + age + presentNumber + (1|SUBJECTID) + 
                      (1|ACTOR), data=dfOriginal, REML = TRUE)
 
 # Calculate estimated marginal means for each emotion condition and pairwise 
 # comparison. Estimated marginal means are specified at presentation number 5.5 
-# and p-values are calculated using the Satterthwaite method. 
+# (i.e., the average presentation number simulated in the dataset) and p-values
+# are calculated using the Satterthwaite method. 
 mLMEPop <- emmeans::emmeans(fit.LMEPop, pairwise~emotion, mode = "satterthwaite",
                          lmerTest.limit = 240000, at = list(presentNumber = c(5.5)))
 
@@ -248,17 +250,17 @@ summary(mANOVAPop, infer = c(TRUE, TRUE))
 summary(pairs(mANOVAPop, infer = c(TRUE, TRUE))) 
 
 #-----------------------------------------------------------------------
-# 5. SPECIFY MISSINGNESS PATTERN (MCAR OR MAR)
+# 5. SPECIFY MISSINGNESS PATTERN 
 
 set.seed(20210329) # Specify seed for reproducible results
 
 # Specify probability weight distribution for presentation numbers 6-10 vs.
 # 1-5. These weights (i.e., presentNumberWeight6to10 and presentNumberWeight1to5)
-# sum to 1 and are used to specify MAR or MCAR missingness for the within-subjects 
-# effect. 
+# sum to 1 and are used to specify missingness pattern for the within-subjects 
+# effect.  
 # - For example, if presentNumberWeight6to10 = 0.7 and presentNumberWeight1to5 = 0.3,
 #   then 70% of missing trials are from presentation numbers 6-10 and 30% of 
-#   trials are from presentation numbers 1-5 (MAR missingness).
+#   trials are from presentation numbers 1-5.
 # - If both weight variables are equal to 0.5, an equal number of missing trials 
 #   are drawn from each presentation number (MCAR missingness).
 presentNumberWeight6to10 <- 0.7
@@ -266,26 +268,27 @@ presentNumberWeight1to5 <- 1-presentNumberWeight6to10
 
 # Calculate the total number of trials per condition for each group of presentation
 # numbers (i.e., 6-10 and 1-5). This value is used to scale each individual trial's 
-# presentation number weight so that the weights will sum to 1 (see lines 289-291). 
+# presentation number weight so that the weights will sum to 1 (see lines 292-294). 
 emotionTrialN <- length(unique(dfOriginal$ACTOR)) * length(unique(dfOriginal$presentNumber))  
 presentNumberTrials6to10 <- emotionTrialN/2 
 presentNumberTrials1to5 <- emotionTrialN/2 
 
 # Specify probability weight distribution for younger vs. older age group. These 
-# weights are used to specify MAR or MCAR missingness for the between-subjects 
+# weights are used to specify missingness pattern for the between-subjects
 # effect (e.g., if ageWeightYounger = 0.7, then 70% of subjects selected for more
-# missing trials and subsequent casewise deletion were from the younger age group). 
+# missing trials and subsequent casewise deletion were from the younger age group).
 ageWeightYounger <- 0.7
 ageWeightOlder <- 1-ageWeightYounger
 
 # Calculate the total number of subjects in the younger and older age groups. This
 # value is used to scale each subject's age weight so that the weights will sum to 
-# 1 (see lines 292-293).
+# 1 (see lines 295-296).
 subjectN <- length(unique(dfOriginal$SUBJECTID))
 ageTrialsYounger <- subjectN/2
 ageTrialsOlder <- subjectN/2
 
-# Add probability weights based on values specified above
+# Create probability weight columns for presentation number and age group based
+# on values specified above
 dfOriginal$presentNumberWeight <- ifelse(dfOriginal$presentNumber > 5,
                                          (presentNumberWeight6to10/presentNumberTrials6to10), 
                                          (presentNumberWeight1to5/presentNumberTrials1to5))
@@ -312,7 +315,7 @@ list[dfMissing, subjectCaseDeletion, trialCount] <- induceMissingTrials(dfOrigin
 #------------------------------------------------------------------------
 # 7. FIT LME MODEL WITH TRIAL-LEVEL DATASET AFTER INDUCING TRIAL MISSINGNESS
 
-fit.LMEMis <- lmer(meanAmpNC ~ emotion + presentNumber + age + (1|SUBJECTID) + 
+fit.LMEMis <- lmer(meanAmpNC ~ emotion + age + presentNumber + (1|SUBJECTID) + 
                      (1|ACTOR), data=dfMissing, REML = TRUE)
 
 # As in step 3, calculate estimated marginal means for each emotion condition 
