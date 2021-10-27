@@ -1,4 +1,4 @@
-Simulated ERP data reported in Section 3 and Appendix B of Heise, Mon, and Bowman (submitted) were generated with the following MATLAB and R scripts. See Appendix B for an overview of the simulation methods and comparison of linear mixed effects (LME) and analysis of variance (ANOVA) models. In addition, see documentation below for running the simulation scripts and conducting a power analysis. 
+Simulated ERP data reported in Section 3 and Appendix B of Heise, Mon, and Bowman (submitted) were generated with the following MATLAB and R scripts. See Appendix B for an overview of the simulation methods and comparison of linear mixed effects (LME) and analysis of variance (ANOVA) models. See Appendix D for a tutorial of the R code used to fit the LME and ANOVA models. In addition, see documentation below for running the simulation scripts and conducting a power analysis. 
 
 ## Table of Contents  
 * [Script overview](#script-overview)
