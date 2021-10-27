@@ -28,7 +28,7 @@
         % - saveUniqueFlagFolder: Folder for saving processed .set files after
         %   adding unique event markers to each file.
     % - Filepath to the following file used during processing:
-        % - eventMarkerMapping: Spreadsheet with mappings between original stimuli 
+        % - eventMarkerMappingFilename: Spreadsheet with mappings between original stimuli 
         %   event markers (i.e., NumericalValue column) and unique preceding codes 
         %   representing a stimulus' emotion condition/actor (i.e., NewPrecedingCode 
         %   column). For more information about this file's columns, see the "Key" sheet in this file. 

@@ -16,11 +16,11 @@
 % ***See Appendix D from Heise, Mon, and Bowman (submitted) for additional details. ***
 
 % Requirements:        
-    % - Filepaths to the following folder:
+    % - Filepath to the following folder:
         % - saveBinDescriptorFilesFolder: Folder for saving bin descriptor file and
         %   bin descriptor file key.  
     % - Filepath to the following file used during processing:
-        % - eventMarkerMapping: Spreadsheet listing the preceding codes
+        % - eventMarkerMappingFilename: Spreadsheet listing the preceding codes
         %   representing a stimulus' emotion condition/actor (i.e., NewPrecedingCode
         %   column) and the corresponding overarching bin (i.e., EmotionLabel column).
         %   For more information about this file's columns, see the "Key" sheet in this file. 

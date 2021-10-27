@@ -27,8 +27,8 @@
         %   Outputs section below for more information).
         % - saveEpochDataFolder: Folder for saving epoched .set files. 
     % - Filepath to the following file used during processing:
-        % - binDescriptorFile: File specifying each bin's number, label, and
-        %   5-digit event markers. This file is created by the 
+        % - binDescriptorFilename: File specifying each bin's number, label,
+        %   and 5-digit event markers. This file is created by the 
         %   LME_02_CreateBinDescriptorFile.m script. 
     
 % Script Functions:
