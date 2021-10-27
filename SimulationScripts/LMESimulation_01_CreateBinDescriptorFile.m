@@ -22,12 +22,12 @@
 % GitHub for additional details: https://github.com/basclab/LME_MixedEffectsERPTutorial/tree/main/SimulationScripts 
 
 % Requirements:        
-    % - Filepaths to the following folder:
+    % - Filepath to the following folder:
         % - saveBinDescriptorFilesFolder: Folder for saving bin descriptor file and
         %   bin descriptor file key.  
     % - Filepath to the following file used during processing:
-        % - eventMarkerMapping: Spreadsheet listing all the preceding codes
-        %   representing each simulated stimulus' emotion condition/actor 
+        % - eventMarkerMappingFilename: Spreadsheet listing all the preceding
+        %   codes representing each simulated stimulus' emotion condition/actor 
         %   (i.e., NewPrecedingCode column). 
         %   For more information about this file's columns, see the "Key" sheet in this file. 
 
