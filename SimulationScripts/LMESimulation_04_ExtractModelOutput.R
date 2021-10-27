@@ -158,7 +158,7 @@ presentNumberWeight6to10 <- 0.7
 presentNumberWeight1to5 <- 1-presentNumberWeight6to10
 # Calculate the total number of trials per condition for each group of presentation
 # numbers (i.e., 6-10 and 1-5). This value is used to scale each individual trial's 
-# presentation number weight so that the weights will sum to 1 (see lines 486-488). 
+# presentation number weight so that the weights will sum to 1 (see lines 491-493). 
 presentNumberTrials6to10 <- emotionTrialN/2 
 presentNumberTrials1to5 <- emotionTrialN/2 
 
@@ -170,7 +170,7 @@ ageWeightYounger <- 0.5
 ageWeightOlder <- 1-ageWeightYounger
 # Calculate the total number of subjects in the younger and older age groups. This
 # value is used to scale each subject's age weight so that the weights will sum to 
-# 1 (see lines 489-490).
+# 1 (see lines 494-495).
 ageTrialsYounger <- subjectN/2
 ageTrialsOlder <- subjectN/2
 
@@ -186,7 +186,7 @@ caseDeletionPctArray <- c(0, 6, 11, 32)
 # induceMissingTrials: Function to randomly select subjects for inducing
 # low trial counts and subsequent casewise deletion prior to ANOVA analysis. 
 # In addition, missing trials are induced based on the specified probability
-# weights from lines 147-174 and 486-490. 
+# weights from lines 148-175 and 491-495. 
 # - Format: 
 #     list[dfMissing, subjectCaseDeletion, trialCount] <- induceMissingTrials(dfOriginal, caseDeletionPct) 
 # - Inputs:
