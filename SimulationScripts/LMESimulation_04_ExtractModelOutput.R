@@ -30,7 +30,7 @@
   #   (e.g., emotion) and capital-letter variables describe random effects 
   #   (e.g., SUBJECTID).
       # - SUBJECTID: Simulated subject ID (e.g., 01, 02, ...)
-      # - age: Simulated age group (e.g., youngerAgeGroup, olderAgeGroup)
+      # - age: Simulated age group (i.e., youngerAgeGroup, olderAgeGroup)
       # - emotion: Simulated emotion condition (i.e., A, B)
       # - ACTOR: Simulated stimulus actor ID (i.e., 01, 02, 03, 04, 05)
       # - presentNumber: Presentation number of specific stimulus (emotion 
@@ -38,8 +38,8 @@
       # - meanAmpNC: Simulated mean amplitude value (in units of microvolts)
   # - saveFolder: Folder for saving the output files (see below) from the script. 
   # - See instructions in step 1 for specifying the original simulation 
-  #   parameters from the MATLAB scripts (e.g., number of subjects per sample).
-  #   Additional parameters are required for inducing missing data: missingness
+  #   parameters from the MATLAB scripts (e.g., number of subjects per sample)
+  #   The following parameters are also specified in step 1: missingness
   #   pattern (more missing data in later trials and/or in younger subjects or 
   #   data missing completely at random (MCAR)) and percentage of subjects with
   #   low trial-count.
@@ -53,11 +53,11 @@
   # 5. (Optional) Calculate power of LME model
 
 # Outputs: 
-  # - modelOutput: One .csv file formatted as a long data frame with the following
+  # - modelOutput: One .csv file formatted as a long dataframe with the following
   #   columns. Output values are extracted from LME and ANOVA models for the 
   #   population dataset (i.e., no missing trials) and for each of the specified 
   #   percentages of subjects with low trial-count (see caseDeletionPct column below).
-    # - emotion: Emotion condition label (e.g., A, B) or the condition 
+    # - emotion: Emotion condition label (i.e., A, B) or the condition 
     #   difference pairwise comparison (A - B) 
     # - estimate: Estimated marginal mean 
     # - SE: Standard error
@@ -77,15 +77,15 @@
     # - caseDeletionPct: Percent of subjects with less than 10 trials/condition that
     #   were casewise deleted prior to ANOVA analysis. 0% indicates that missing 
     #   trials were induced but no subjects were casewise deleted (all subjects 
-    #   met the 10 trials/condition threshold). Pop. indicates no missing trial and no 
-    #   casewise deletion.
+    #   met the 10 trials/condition threshold). Pop. indicates no missing trial 
+    #   and no casewise deletion.
     # - sample: The simulated data sample ID (e.g., 1)
   # - trialCountOutput: One .csv file formatted as a long dataframe with the
   #   following columns. This file documents the number of remaining trials per
   #   subject and emotion condition. These values are reported for each sample and 
   #   specified percentage of subjects with low trial-count.
     # - SUBJECTID: Subject ID (e.g., 01, 02, ...)
-    # - emotion: Emotion condition label (e.g., A, B)
+    # - emotion: Emotion condition label (i.e., A, B)
     # - trialN: Number of remaining trials for this subject and emotion condition
     # - caseDeletionPct: Percent of subjects with less than 10 trials/condition that
     #   were casewise deleted prior to ANOVA analysis. 0% indicates that missing 
@@ -131,16 +131,17 @@ set.seed(20210329) # Specify seed for reproducible results
 subjectN <- 50 # Number of unique subjects per sample
 actorN <- 5 # Number of unique actors per sample
 presentN <- 10 # Number of presentations of each stimulus (emotion condition/actor)
+presentAvgValue <- mean(1:10) # Average presentation number value
 emotionTrialN <- actorN*presentN # Total number of trials per emotion condition
 
 emotionLabel <- c("A", "B") # Name of each emotion condition
 emotionN <- length(emotionLabel) # Number of emotion conditions
 emotionA <- -9.995 # Emotion condition A's population mean
 emotionB <- -11.997 # Emotion condition B's population mean
-emotionDiff <- 2.002 # Difference between emotion condition's population means
+emotionDiff <- c(emotionA-emotionB) # Difference between emotion condition's population means
 emotionSlope <- 1.499 # Change in amplitude with each successive presentation
-# Population mean amplitude for each emotion condition specified at presentation
-# number 5.5 
+# Population mean amplitude for each emotion condition specified at the average 
+# presentation number simulated in the dataset
 emotionAvgValue <- c(mean(seq(emotionA, emotionA+(emotionSlope*(presentN-1)), by = emotionSlope)), 
                      mean(seq(emotionB, emotionB+(emotionSlope*(presentN-1)), by = emotionSlope)))
 
@@ -176,7 +177,7 @@ ageTrialsOlder <- subjectN/2
 # Specify percent of subjects with low trial-count (i.e., subjects with less
 # than 10 trials/condition who will be removed during casewise deletion). The
 # script will loop through each value in this array and generate a corresponding
-# dataset with missing trials. 
+# dataset with missing trials.
 caseDeletionPctArray <- c(0, 6, 11, 32)
 
 #------------------------------------------------------------------------
@@ -191,7 +192,7 @@ caseDeletionPctArray <- c(0, 6, 11, 32)
 # - Inputs:
   # - dfOriginal: Dataframe with the simulated "population" dataset before any
   #   induced missing trials (see Outputs section at the top of the script for
-  # more information). 
+  #   more information). 
   # - caseDeletionPct: Percent of subjects with low trial-count (i.e., less than
   #   10 trials/condition).
 # - Outputs: List containing three elements:
@@ -235,7 +236,7 @@ induceMissingTrials <- function(dfOriginal, caseDeletionPct) {
     if (subject %in% subjectCaseDeletion) { 
       
       # For subjects with a low trial count, at least one emotion condition will 
-      # have less 10 trials remaining
+      # have less than 10 trials remaining
       trialMissing <- c(sample(x=(trialMissingThreshold+1):emotionTrialN, size = 1),
                         sample(x=0:emotionTrialN, size = emotionN-1, replace = TRUE))                       
     } else { 
@@ -300,32 +301,34 @@ induceMissingTrials <- function(dfOriginal, caseDeletionPct) {
 extractModelOutput <- function(modelInput, modelType) {
   #------------------------------------------------------------------------
   # Extract output for an LME model. Estimated marginal mean for each emotion
-  # condition and pairwise comparison are specified at presentation number 5.5
-  # and p-values are calculated using the Satterthwaite method. 
+  # condition and pairwise comparison are specified at the average presentation 
+  # number and p-values are calculated using the Satterthwaite method. 
   if (modelType == 'LME') {
     # Calculate estimated marginal means
     mLME <- emmeans::emmeans(modelInput, pairwise~emotion, mode = "satterthwaite", 
-                             lmerTest.limit = 240000, at = list(presentNumber = c(5.5)))
+                             lmerTest.limit = 240000, at = list(presentNumber = c(presentAvgValue)))
     
     # Extract output values for each emotion condition 
     modelOutput_estimates <- data.frame(summary(mLME, infer = c(TRUE, TRUE))$emmeans)
     # Check if each true population emotion condition value is located within the
     # model's 95% confidence interval for the emotion condition
-    modelOutput_estimates$inCL[1] <- between(emotionAvgValue[1], 
-                                             modelOutput_estimates$lower.CL[1], 
-                                             modelOutput_estimates$upper.CL[1])
-    modelOutput_estimates$inCL[2] <- between(emotionAvgValue[2], 
-                                             modelOutput_estimates$lower.CL[2], 
-                                             modelOutput_estimates$upper.CL[2])
+    for (emotionNum in 1:emotionN) {
+      modelOutput_estimates$inCL[emotionNum] <- between(emotionAvgValue[emotionNum], 
+                                                        modelOutput_estimates$lower.CL[emotionNum], 
+                                                        modelOutput_estimates$upper.CL[emotionNum])
+    }
     names(modelOutput_estimates)[1] <- c('emotion') # Update column names
     names(modelOutput_estimates)[2] <- c('estimate')
     
-    # Extract output values for the condition difference pairwise comparison (A-B) 
+    # Extract output values for the condition difference pairwise comparison 
     modelOutput_condDiff <- data.frame(summary(mLME, infer = c(TRUE, TRUE))$contrasts)
-    # Check if the true population condition difference is located within the
+    # Check if each true population condition difference is located within the
     # model's 95% confidence interval for the condition difference
-    modelOutput_condDiff$inCL <- between(emotionDiff, modelOutput_condDiff$lower.CL, 
-                                         modelOutput_condDiff$upper.CL)
+    for (emotionDiffNum in 1:length(emotionDiff)) {
+      modelOutput_condDiff$inCL[emotionDiffNum] <- between(emotionDiff[emotionDiffNum],
+                                                           modelOutput_condDiff$lower.CL[emotionDiffNum],
+                                                           modelOutput_condDiff$upper.CL[emotionDiffNum])
+    }
     names(modelOutput_condDiff)[1] <- c('emotion') # Update column names
     names(modelOutput_condDiff)[2] <- c('estimate')
     
@@ -352,7 +355,7 @@ extractModelOutput <- function(modelInput, modelType) {
   #------------------------------------------------------------------------
   # Extract output for an ANOVA model. Estimated marginal mean for each emotion
   # condition and pairwise comparison are specified at the average presentation
-  # number of the dataset. Compared to the LME model, we can not specify the
+  # number of the dataset. Compared to the LME model, we cannot specify the
   # presentation number explicitly because data has been trial-averaged. 
   } else if (modelType == 'ANOVA'){
     # Calculate estimated marginal means
@@ -362,21 +365,23 @@ extractModelOutput <- function(modelInput, modelType) {
     modelOutput_estimates <- data.frame(summary(mANOVA, infer = c(TRUE, TRUE)))
     # Check if each true population emotion condition value is located within the
     # model's 95% confidence interval for the emotion condition
-    modelOutput_estimates$inCL[1] <- between(emotionAvgValue[1], 
-                                             modelOutput_estimates$lower.CL[1], 
-                                             modelOutput_estimates$upper.CL[1])
-    modelOutput_estimates$inCL[2] <- between(emotionAvgValue[2], 
-                                             modelOutput_estimates$lower.CL[2], 
-                                             modelOutput_estimates$upper.CL[2])
+    for (emotionNum in 1:emotionN) {
+      modelOutput_estimates$inCL[emotionNum] <- between(emotionAvgValue[emotionNum], 
+                                                        modelOutput_estimates$lower.CL[emotionNum], 
+                                                        modelOutput_estimates$upper.CL[emotionNum])
+    }
     names(modelOutput_estimates)[1] <- c('emotion') # Update column names
     names(modelOutput_estimates)[2] <- c('estimate')
     
-    # Extract output values for the condition difference pairwise comparison (A-B)
+    # Extract output values for the condition difference pairwise comparison
     modelOutput_condDiff <- data.frame(summary(pairs(mANOVA, infer = c(TRUE, TRUE))))
-    # Check if the true population condition difference is located within the
+    # Check if each true population condition difference is located within the
     # model's 95% confidence interval for the condition difference
-    modelOutput_condDiff$inCL <- between(emotionDiff, modelOutput_condDiff$lower.CL, 
-                                         modelOutput_condDiff$upper.CL)
+    for (emotionDiffNum in 1:length(emotionDiff)) {
+      modelOutput_condDiff$inCL[emotionDiffNum] <- between(emotionDiff[emotionDiffNum],
+                                                           modelOutput_condDiff$lower.CL[emotionDiffNum],
+                                                           modelOutput_condDiff$upper.CL[emotionDiffNum])
+    }
     names(modelOutput_condDiff)[1] <- c('emotion') # Update column names
     names(modelOutput_condDiff)[2] <- c('estimate')
     
@@ -420,7 +425,7 @@ fitMissData <- function(dfOriginal, caseDeletionPct){
   #------------------------------------------------------------------------
   # Fit LME model with dfMissing (trial-level dataset after inducing trial missingness).
   # Restricted maximum likelihood (REML) is used to fit all LME models
-  fit.LMEMis <- lmer(meanAmpNC ~   emotion + presentNumber + age + (1|SUBJECTID) +
+  fit.LMEMis <- lmer(meanAmpNC ~ emotion + presentNumber + age + (1|SUBJECTID) +
                        (1|ACTOR), data=dfMissing, REML = TRUE) 
   LMEMis_output <- extractModelOutput(fit.LMEMis, 'LME') # Extract estimated marginal means
   
@@ -454,7 +459,7 @@ fitMissData <- function(dfOriginal, caseDeletionPct){
 # FIT LME AND ANOVA MODELS
 
 # Initialize variables for saving extracted model output and trial count per 
-# subject and emotion condition after induceMissingTrials function
+# subject and emotion condition
 modelOutput = NULL
 trialCountOutput = NULL
 
@@ -481,8 +486,8 @@ for (sampleNum in 1:sampleN) { # Loop through each simulated data sample
   # Specify sum coding for the age variable for subsequent ANOVA analysis
   contrasts(dfOriginal$age) <- contr.Sum(levels(dfOriginal$age)) 
   
-  # Add probability weights for presentation number and age group using values
-  # specified in step 1. 
+  # Create probability weight columns for presentation number and age group using 
+  # values specified in step 1. 
   dfOriginal$presentNumberWeight <- ifelse(dfOriginal$presentNumber >5,
                                            (presentNumberWeight6to10/presentNumberTrials6to10), 
                                            (presentNumberWeight1to5/presentNumberTrials1to5))
@@ -494,7 +499,7 @@ for (sampleNum in 1:sampleN) { # Loop through each simulated data sample
   
   # Fit LME model with dfOriginal (trial-level population dataset)
   # Restricted maximum likelihood (REML) is used to fit all LME models
-  fit.LMEPop <- lmer(meanAmpNC ~   emotion + presentNumber + age + (1|SUBJECTID) +
+  fit.LMEPop <- lmer(meanAmpNC ~ emotion + presentNumber + age + (1|SUBJECTID) +
                        (1|ACTOR), data=dfOriginal, REML = TRUE)
   LMEPop_output <- extractModelOutput(fit.LMEPop, 'LME') # Extract estimated marginal means
   
@@ -507,7 +512,7 @@ for (sampleNum in 1:sampleN) { # Loop through each simulated data sample
   
   # Save all output values for both LME and ANOVA models into one dataframe
   modelOutput_oneSample <- bind_rows(LMEPop_output, ANOVAPop_output)
-  modelOutput_oneSample$caseDeletionPct <- 'Pop.' # Specify that this is the population dataset
+  modelOutput_oneSample$caseDeletionPct <- 'Pop.' # Specify that models were fitted to the population dataset
   
   #------------------------------------------------------------------------
   # Loop through each specified percentage of subjects with low trial-count
@@ -564,5 +569,5 @@ modelOutput %>% filter(emotion == "A - B" & modelType == "LME" &
 modelOutput_LMECondDiffSig <- sum(modelOutput_LMECondDiff$p.value <0.05, na.rm = TRUE)
 
 # Calculate percentage of samples (out of sampleN) where the LME model found a 
-# significant difference
+# significant difference (i.e., power)
 100*(modelOutput_LMECondDiffSig/sampleN)
