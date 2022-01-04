@@ -126,7 +126,7 @@ saveFolder = 'C:\Users\basclab\Desktop\LMESimulation';
 
 %% 1. DEFINE SIMULATION PARAMETERS
 
-sampleN = 1; % Number of simulated samples
+sampleN = 500; % Number of simulated samples
 
 % Sample ID for first simulated sample (e.g., sample #1). This variable is 
 % used when multiple computers are running separate simulations (e.g., computer
