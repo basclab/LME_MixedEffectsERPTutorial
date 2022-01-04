@@ -17,19 +17,21 @@
 % LME_06_OrganizeDataFiles.R script merges all of the datafiles into long
 % format in R so that all subjects are saved in one dataframe. 
 
-% This script can be modified to export other output measures (e.g., peak
-% amplitude) by changing the arguments of the pop_geterpvalues function
-% in step 2. For more information about this function and example code for 
+% To adapt the script for your processing pipeline, see script comments 
+% below for code that can be customized. In addition, this script can be
+% modified to export other output measures (e.g., peak amplitude) by 
+% changing the arguments of the pop_geterpvalues function in step 2. 
+% For more information about this function and example code for 
 % extracting a different output measure (e.g., peak amplitude), see the
 % following ERPLAB resource: https://github.com/lucklab/erplab/wiki/Measuring-amplitudes-and-latencies-with-the-ERP-Measurement-Tool:-Tutorial  
 
 % ***See Appendix D from Heise, Mon, and Bowman (submitted) for additional details. ***
 
 % Requirements:
-    % - Needs EEGLAB v 2019_0 and ERPLAB v 8.01
+    % - Needs MATLAB R2019a, EEGLAB v 2019_0 and ERPLAB v 8.01
         % - For more information on EEGLAB, see: Delorme, A. & Makeig, S. (2004).
-        %   EEGLAB: An open source toolbox for analysis of single-trial EEG dynamics.
-        %   https://sccn.ucsd.edu/eeglab/index.php
+        %   EEGLAB: An open source toolbox for analysis of single-trial EEG dynamics
+        %   including independent component analysis. https://sccn.ucsd.edu/eeglab/index.php
         % - For more information on ERPLAB, see: Lopez-Calderon, J., & Luck, S. J.
         %   (2014). ERPLAB: An open-source toolbox for the analysis of event-related
         %   potentials. https://erpinfo.org/erplab/     
@@ -42,7 +44,7 @@
         % - saveOutputFolder_FINAL: Folder for saving the FINAL mean amplitude
         %   .txt files created with the setNaNForEmptyBins function in step 3.
         % - setNaNForEmptyBinsFolder: Folder where the setNaNForEmptyBins
-        %   function is stored. This variable is important so that MATLAB can
+        %   function is stored. This variable is needed by MATLAB to
         %   locate the function and use it during the script. 
     % - Variables used to extract the mean amplitude for the desired time
     %   window and channels of interest:
@@ -117,10 +119,12 @@ addpath(setNaNForEmptyBinsFolder)
 % Define variables for mean amplitude extraction: 
 % In this tutorial, the NC mean amplitude is extracted over a 300-500 ms
 % time window for each of the following three channels (from a
-% 64-channel montage High Precision fabric ActiCap):
+% 64-channel montage High Precision fabric ActiCap Snap cap):
     % - C3 (channel #8) 
     % - Cz (channel #64)
     % - C4 (channel #24)
+% The time window and channels of interest can be modified based on your
+% component of interest. 
 timeWindowArray = [300 500];
 channelArray = [8 24 64];
 
@@ -146,7 +150,7 @@ for f = 1:length(importFiles) % Loop through each subject's file
         'Filename', saveOutputFilename_RAW, 'Fracreplace', 'NaN', 'IncludeLat', 'yes', ...
         'InterpFactor', 1, 'Measure', 'meanbl', 'PeakOnset', 1, 'Resolution', 3);
     
-    % See ERPLAB resource listed above (line 20-24) for more information
+    % See ERPLAB resource listed above (lines 20-26) for more information
     % about the pop_geterpvalues function and adapting the code for
     % extracting a different output measure (e.g., peak amplitude). 
     

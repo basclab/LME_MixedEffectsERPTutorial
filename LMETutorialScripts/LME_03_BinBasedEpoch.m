@@ -10,19 +10,22 @@
 % This file documents the event markers and bins in each subject's
 % dataset.
 
+% To adapt the script for your processing pipeline, see script comments 
+% below for code that can be customized.
+
 % ***See Appendix D from Heise, Mon, and Bowman (submitted) for additional details. ***
 
 % Requirements:
-    % - Needs EEGLAB v 2019_0 and ERPLAB v 8.01
+    % - Needs MATLAB R2019a, EEGLAB v 2019_0 and ERPLAB v 8.01
         % - For more information on EEGLAB, see: Delorme, A. & Makeig, S. (2004).
-        %   EEGLAB: An open source toolbox for analysis of single-trial EEG dynamics.
-        %   https://sccn.ucsd.edu/eeglab/index.php
+        %   EEGLAB: An open source toolbox for analysis of single-trial EEG dynamics
+        %   including independent component analysis. https://sccn.ucsd.edu/eeglab/index.php
         % - For more information on ERPLAB, see: Lopez-Calderon, J., & Luck, S. J.
         %   (2014). ERPLAB: An open-source toolbox for the analysis of event-related
         %   potentials. https://erpinfo.org/erplab/    
     % - Filepaths to the following folders:
         % - importFolder: Folder containing processed .set files (e.g., files
-        %   that have been filtered and re-referenced to the average reference. 
+        %   that have been filtered and re-referenced to the average reference). 
         % - saveEventListFolder: Folder for saving EventList .txt files (see 
         %   Outputs section below for more information).
         % - saveEpochDataFolder: Folder for saving epoched .set files. 
@@ -41,11 +44,11 @@
     
 % Outputs:
     % - EventList .txt files documenting the event markers and bins
-    %   saved for each subject's dataset. 
+    %   saved for each subject's dataset (one file per subject).
         % - For more information about EventLists, see the following ERPLAB
         %   resource: https://github.com/lucklab/erplab/wiki/Creating-an-EventList:-ERPLAB-Functions:-Tutorial
     % - Epoched .set files that have been time-locked to the unique 5-digit
-    %   event markers for each subject.
+    %   event markers (one file per subject).
     
 % Copyright 2021 Megan J. Heise, Serena K. Mon, Lindsay C. Bowman
 % Brain and Social Cognition Lab, University of California Davis, Davis, CA, USA.
@@ -98,7 +101,7 @@ for f = 1:length(importFiles) % Loop through each subject's file
     
     % The ‘BoundaryNumeric’ and ‘BoundaryString’ arguments specify that any
     % 'boundary' event markers are converted to ‘-99’ event markers.
-    EEG  = pop_creabasiceventlist(EEG , 'AlphanumericCleaning', 'on', 'BoundaryNumeric', { -99 }, 'BoundaryString', { 'boundary' } );
+    EEG  = pop_creabasiceventlist(EEG , 'AlphanumericCleaning', 'on', 'BoundaryNumeric', { -99 }, 'BoundaryString', { 'boundary' });
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
     
 %% 3. ASSIGN EVENTS TO BINS AND SAVE FINAL EVENTLIST CONTAINING BIN INFORMATION
@@ -108,20 +111,20 @@ for f = 1:length(importFiles) % Loop through each subject's file
     saveEventListFilename = strcat(filename, '_EventList.txt');
     saveEventListFilepath = fullfile(saveEventListFolder, saveEventListFilename);
     
-    % Use the binlister function to assign the 5-digit unique event markers
+    % Use the pop_binlister function to assign the 5-digit unique event markers
     % to their corresponding bins. In this tutorial, each event marker is 
     % assigned to three bins: their trial-specific bin (e.g., 30101), 
     % their overarching bin (e.g., Angry), and the "all conditions" bin.
-    % The subject's EventList .txt file (with information about the event 
-    % markers in the dataset and their assigned bins) is exported at the
-    % end of this step. 
-    EEG  = pop_binlister(EEG , 'BDF', binDescriptorFilename, 'ExportEL', saveEventListFilepath, 'IndexEL',  1, 'SendEL2', 'All', 'UpdateEEG', 'on', 'Voutput', 'EEG' );
+    % The subject's EventList .txt file (containing information about the event 
+    % markers in the subject's dataset and their assigned bins) is exported at 
+    % the end of this step. 
+    EEG  = pop_binlister(EEG , 'BDF', binDescriptorFilename, 'ExportEL', saveEventListFilepath, 'IndexEL',  1, 'SendEL2', 'All', 'UpdateEEG', 'on', 'Voutput', 'EEG');
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
     
 %% 4. EXTRACT BIN-BASED EPOCHS AND BASELINE CORRECT
     fprintf('Subject %s: Extract Epochs and Baseline Correct \n\n', filename);
 
-    % In this tutorial, data is epoched in -200 to 1000 ms time windows and
+    % In this tutorial, data is epoched in a -200 to 1000 ms time window and
     % data is baseline corrected using the average voltage from the
     % pre-stimulus period. The epoch and baseline correction window can be
     % modified based on your processing pipeline. 

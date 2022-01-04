@@ -14,12 +14,16 @@
   # - The next two digits are the actor ID (e.g., 01)
   # - The last two digits are the presentation number (e.g., 01 = first presentation)
 
+# To adapt the script for your experiment design, verify that the subject ID
+# and other information have been correctly extracted and stored in the dataframe.
+
 # ***See Appendix D from Heise, Mon, and Bowman (submitted) for additional details. ***
 
 # Requirements: 
+  # - Needs R Version 3.6.1 and packages listed in lines 70-71
   # - importFolder: Folder containing mean amplitude output .txt files created 
   #   during the LME_05_MeasureERPs.m script. There is one file per subject.
-  # - saveFolderPath: Folder for saving the long dataframe (containing all 
+  # - saveFolder: Folder for saving the long dataframe (containing all 
   #   subjects' data) as a .csv file at the end of the script.
 
 # Script Functions:
@@ -36,10 +40,10 @@
     # - SUBJECTID: Subject ID (e.g., 01, 02, ...)
     # - channel: Electrode channel (e.g., Cz)
     # - emotion: Emotion condition (i.e., Angry, Fear, Happy, Neutral)
-    # - ACTOR: Stimulus actor (e.g., 01, 02, ...)
+    # - ACTOR: Stimulus actor ID (e.g., 01, 02, ...)
     # - presentNumber: Presentation number of a specific stimulus (emotion condition/
     #   actor). In this tutorial, this variable ranged from 1 to 10. 
-    # - meanAmpNC: Mean amplitude value (in units of microvolts). 
+    # - meanAmpNC: NC mean amplitude value (in units of microvolts) 
 
 # Copyright 2021 Megan J. Heise, Serena K. Mon, Lindsay C. Bowman
 # Brain and Social Cognition Lab, University of California Davis, Davis, CA, USA.
@@ -62,8 +66,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-library(data.table) # fwrite function
-library(plyr) # revalue function
+# Load required packages
+library(data.table) # V.1.13.2; fread function
+library(plyr) # V.1.8.6; revalue function
 #-----------------------------------------------------------------------
 # DATA ENVIRONMENT
 
@@ -75,8 +80,8 @@ fileDir <- list.files(path = importFolder, pattern = ".txt", full.names = TRUE,
                      recursive = FALSE)
 
 # Specify folder location and filename for saving long dataframe
-saveFolderPath <- 'C:/Users/basclab/Desktop/LMETutorial'
-saveFilename <- paste0(saveFolderPath,'/MeanAmpNC_LongDFWithAllSubjects.csv')
+saveFolder <- 'C:/Users/basclab/Desktop/LMETutorial'
+saveFilename <- paste0(saveFolder,'/MeanAmpNC_LongDFWithAllSubjects.csv')
 
 #------------------------------------------------------------------------
 # 1. IMPORT EACH SUBJECT'S MEAN AMPLITUDE .TXT FILE AND MERGE INTO A LONG
@@ -89,7 +94,7 @@ for (filename in fileDir) { # Loop through each subject's file
   print(filename)
   
   # Import subject's file as a long dataframe (the read.csv function is used
-  # because the .txt file is formatted as comma delimited file)
+  # because the .txt file is formatted as a comma delimited file)
   oneSubjectDF <- read.csv(filename)
   
   # Extract subject ID from the ERPset column (e.g., if the value was 
@@ -126,9 +131,9 @@ allSubjectsDF_subset$presentNumber <- substr(allSubjectsDF_subset$binLabel,4,5)
 # Create a meanAmpNC column for exporting mean amplitude values
 allSubjectsDF_subset$meanAmpNC <- allSubjectsDF_subset$value 
 
-# Create a channel column. In this example, channel only has 3 levels: C3, Cz, C4).
+# Create a channel column. In this example, channel only has 3 levels: C3, Cz, C4.
 # Due to the low number of levels, we include channel as a fixed effect based on
-# recommendations from previous literature (Volpert-Esmond et al., 2021)
+# recommendations from previous literature (Volpert-Esmond et al., 2021).
 allSubjectsDF_subset$channel <- allSubjectsDF_subset$channelLabel
 
 # Convert emotion condition ID (e.g., 3) to a descriptive label (e.g., "Angry")

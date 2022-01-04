@@ -2,14 +2,14 @@
 
 % Purpose: This function imports a raw .txt file outputted by the
 % pop_geterpvalues function (see the LME_05_MeasureERPs.m script).
-% Then, empty bins are identified and their output value set to NaN
-% Finally, the function, saves the final .txt file in the desired 
-% folder. 
+% Then, empty bins (i.e., bins that do not contain any data) are
+% identified and their output value set to NaN. Finally, the function
+% saves the final .txt file in the desired folder. 
 
-% NOTE: This function has been tested with exported mean amplitude and peak
+% NOTE: This function has been tested with exported peak amplitude and mean
 % amplitude output files. Exporting other types of output values (e.g.,
 % peak latency) may require adapting the column information specified in
-% lines 73-79.
+% lines 76-82.
 
 % ***See Appendix D from Heise, Mon, and Bowman (submitted) for additional details. ***
 
@@ -21,14 +21,17 @@
     %   function. The output for empty bins have NOT been set to NaN yet. 
     % - rawFolderName: Folder location of the raw .txt files. 
     % - finalFolderName: Folder location for saving the final output .txt
-    %   files. 
+    %   files after converting the output value of empty bins to NaN.
     % - acceptedTrialArray: Array listing the number of trials assigned to each
     %   bin. This array does not include any trials that were rejected due to
     %   artifacts or boundary events. 
     % - outputMeasurement: String specifying whether the output .txt file
-    %   lists mean amplitude ("mean") or peak amplitude ("peak"). See above
-    %   note in lines 9-12 about modifying the function for other output 
+    %   has peak amplitude ("peak") or mean amplitude ("mean") values. See 
+    %   above note in lines 9-12 about modifying the function for other output 
     %   values (e.g., peak latency). 
+    
+% Other Requirements:
+    % - Needs MATLAB R2019a
     
 % Output: This function does not output any variables. However, the final
 % .txt file (with empty bins' output updated to NaN) is saved at the end 

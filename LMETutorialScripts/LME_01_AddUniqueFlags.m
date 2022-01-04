@@ -11,16 +11,19 @@
 % spreadsheet. The first digit corresponds to the emotion condition (e.g., 3)
 % and the next two digits indicate the actor ID (e.g., 01). This 3-digit code
 % is then appended with the presentation number (e.g., 01) to create the 
-% final 5-digit marker (e.g., 30101). These steps can be modified depending 
-% on the naming convention of your final event markers. 
+% final 5-digit marker (e.g., 30101). 
+
+% To adapt the script for your experiment design, modify the eventMarkerMapping
+% spreadsheet with your event marker naming conventions (see example
+% template on GitHub: https://github.com/basclab/LME_MixedEffectsERPTutorial/blob/main/LMETutorialScripts/LME_EventMarkerMappingKey.xlsx).
 
 % ***See Appendix D from Heise, Mon, and Bowman (submitted) for additional details. ***
 
 % Requirements:
-    % - Needs EEGLAB v 2019_0
+    % - Needs MATLAB R2019a, EEGLAB v 2019_0
         % - For more information on EEGLAB, see: Delorme, A. & Makeig, S. (2004).
-        %   EEGLAB: An open source toolbox for analysis of single-trial EEG dynamics.
-        %   https://sccn.ucsd.edu/eeglab/index.php   
+        %   EEGLAB: An open source toolbox for analysis of single-trial EEG dynamics
+        %   including independent component analysis. https://sccn.ucsd.edu/eeglab/index.php   
     % - Filepaths to the following folders:
         % - importFolder: Folder containing preprocessed .set files. If needed,
         %   event markers in each file have been shifted to account for
@@ -68,7 +71,7 @@
 % Specify folder location of preprocessed data 
 importFolder = 'C:\Users\basclab\Desktop\LMETutorial\01_PreprocessedBeforeUniqueFlags';
 cd(importFolder); % Change current folder to importFolder
-importFiles = dir('*.set'); % Make a directory of all .set files (created in EEGLAB) in importFolder
+importFiles = dir('*.set'); % Make a directory of all EEGLAB .set files in importFolder
 
 % Specify folder location for saving processed data files (after adding unique flags)
 saveUniqueFlagFolder = 'C:\Users\basclab\Desktop\LMETutorial\02_WithUniqueFlags';
@@ -117,44 +120,44 @@ for f = 1:length(importFiles) % Loop through each subject's file
         % is 301). This new event marker has the same latency as the original marker. 
         for x = 1:length(eventMarkerOriginalIdx)
             numEvents = length(EEG.event); % This variable is used in the next two lines to add a new event at the end of the subject's event array
-            EEG.event(numEvents+1).type = eventMarkerPrecCode{:}; % Name this new event marker as the preceding code
+            EEG.event(numEvents+1).type = eventMarkerPrecCode{:}; % Name this new event marker with the preceding code
             EEG.event(numEvents+1).latency = EEG.event(eventMarkerOriginalIdx(x)).latency; % Copy latency from the original event marker to the new event marker
         end
     end
     EEG = eeg_checkset(EEG, 'eventconsistency'); % After adding new preceding code events, sort all events based on latency    
-    allEventArray_Updated = {EEG.event.type}'; % Create a variable with the subject's updated event marker array (containing both original event markers and newly added markers)
+    allEventArray_updated = {EEG.event.type}'; % Create a variable with the subject's updated event marker array (containing both original event markers and newly added markers)
    
     % 2d. Add the presentation number to each new event (e.g., convert the first instance of 301 to 30101;
-    % convert the second instance of 301 to 30102)
+    % convert the second instance of 301 to 30102, etc.)
     uniquePrecCode = unique(eventMarkerMapping.NewPrecedingCode); % Extract all unique preceding codes from the eventMarkerMapping's NewPrecedingCode column
     for y = 1:length(uniquePrecCode) % Loop through each unique preceding code
         precCode = uniquePrecCode(y); 
         
         % Extract all new events with this preceding code from the subject's allEventArray
-        precCodeIdx = find(strcmp(allEventArray_Updated, precCode));
+        precCodeIdx = find(strcmp(allEventArray_updated, precCode));
         
         % Generate presentation number array based on the number of occurrences
         % of this preceding code (e.g., if this code occurs 10 times in this subject's 
-        % allEventArray, then the following array is created: ["01", "02", "03", "04",
-        % "05", "06", "07", "08", "09", "10"])
+        % allEventArray_updated, then the following array is created: ["01", "02", "03", 
+        % "04", "05", "06", "07", "08", "09", "10"])
         presentNumberArray = pad(string(1:length(precCodeIdx)),2,'left','0')';
         
         % Update each new event with the corresponding presentation number 
         % (e.g., "30101", "30102", ...). NOTE: This assumes that events 
-        % have been sorted chronologically! (see line 124)
-        allEventArray_Updated(precCodeIdx) = strcat(allEventArray_Updated(precCodeIdx), cellstr(presentNumberArray));
-        [EEG.event.type] = deal(allEventArray_Updated{:});
+        % have been sorted chronologically! (see line 127)
+        allEventArray_updated(precCodeIdx) = strcat(allEventArray_updated(precCodeIdx), cellstr(presentNumberArray));
+        [EEG.event.type] = deal(allEventArray_updated{:});
     end
     [ALLEEG, EEG] = eeg_store(ALLEEG, EEG, CURRENTSET); % Store the updated dataset in ALLEEG 
     EEG = eeg_checkset(EEG, 'eventconsistency'); % Sort all events based on latency
     
     % 2e. Remove original event markers (e.g., 50). This step is performed after adding
     % the final 5-digit event markers in case debugging is needed. 
-    allEventArray_Final = {EEG.event.type}'; % Create a new variable with the subject's updated event marker array (containing both original event markers and final 5-digit markers)
+    allEventArray_final = {EEG.event.type}'; % Create a new variable with the subject's updated event marker array (containing both original event markers and final 5-digit markers)
     
-    % Extract location of all original event markers from the subject's allEventArray_Final
-    eventMarkerOriginalIdx_Final = find(ismember(allEventArray_Final, eventMarkerMapping.NumericalValue));  
-    EEG = pop_editeventvals(EEG,'delete',eventMarkerOriginalIdx_Final); % Delete these original event markers 
+    % Extract location of all original event markers from the subject's allEventArray_final
+    eventMarkerOriginalIdx_final = find(ismember(allEventArray_final, eventMarkerMapping.NumericalValue));  
+    EEG = pop_editeventvals(EEG,'delete',eventMarkerOriginalIdx_final); % Delete these original event markers 
     [ALLEEG, EEG, CURRENTSET] = eeg_store(ALLEEG, EEG); % Store the updated dataset in ALLEEG
     EEG = eeg_checkset(EEG, 'eventconsistency'); % Sort all events based on latency
     
@@ -162,6 +165,6 @@ for f = 1:length(importFiles) % Loop through each subject's file
     filename = strcat(filename, '_uniqueFlag'); % Update filename to indicate that unique flags have been added
     EEG = pop_saveset(EEG, 'filename', filename, 'filepath', saveUniqueFlagFolder); % Save file in the desired folder
 
-    clear originalName filename allEventArray allEventArray_Updated allEventArray_Final eventMarkerOriginalIdx eventMarkerOriginalIdx_Final
+    clear originalName filename allEventArray allEventArray_updated allEventArray_final eventMarkerOriginalIdx eventMarkerOriginalIdx_final
 end
 clear % Clear variable workspace
