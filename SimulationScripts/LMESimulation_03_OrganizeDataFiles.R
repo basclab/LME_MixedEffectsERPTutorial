@@ -11,22 +11,27 @@
   # - The first two digits of the label is the subject ID (e.g., 01)
   # - The first digit after the _:_ is the emotion condition (e.g., 3)
   # - The next two digits are the actor ID (e.g., 01)
-  # - The last two digits are the presentation number (e.g., 01, first presentation)
+  # - The last two digits are the presentation number (e.g., 01 = first presentation)
 
 # Finally, the sample's subject data log is merged with the dataframe and the
 # final dataframe is saved as a .csv file.
+
+# To adapt the script for your experiment design and simulation parameters, 
+# verify that the sample ID, subject ID, and other information have been 
+# correctly extracted and stored in the dataframe.
 
 # ***See SimulationScripts README.md available on the LME_MixedEffectsERPTutorial 
 # GitHub for additional details: https://github.com/basclab/LME_MixedEffectsERPTutorial/tree/main/SimulationScripts 
 
 # Requirements: 
+  # - Needs R Version 3.6.1 and packages listed in lines 78-80
   # - importParentFolder: Folder containing two subfolders used for saving 
-  #   simulated files: MeanAmpOutput_PreMerge (contains mean amplitude output
-  #   files) and SubjectDataLog (contains logs of each subject's assigned age
+  #   simulated files: 01_MeanAmpOutput_PreMerge (contains mean amplitude output
+  #   files) and 01_SubjectDataLog (contains logs of each subject's assigned age
   #   group).
   # - saveFolder: Folder for saving the merged dataframe containing each subject's
   #   mean amplitude output, assigned age group, and stimuli-related information for
-  #   each trial. The dataframe is saved as a .csv file at the end of the script.
+  #   each trial. This dataframe is saved as a .csv file at the end of the script.
 
 # Script Functions:
   # 1. Import each sample's mean amplitude .txt file 
@@ -46,7 +51,7 @@
     # - ACTOR: Simulated stimulus actor ID (i.e., 01, 02, 03, 04, 05)
     # - presentNumber: Presentation number of specific stimulus (emotion 
     #   condition/actor) ranging from 1 to 10
-    # - meanAmpNC: Simulated mean amplitude value (in units of microvolts)
+    # - meanAmpNC: Simulated NC mean amplitude value (in units of microvolts)
 
 # Copyright 2021 Megan J. Heise, Serena K. Mon, Lindsay C. Bowman
 # Brain and Social Cognition Lab, University of California Davis, Davis, CA, USA.
@@ -69,23 +74,24 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-library(data.table) # fread function
-library(dplyr) # select function
-library(stringr) # str_sub function
+# Load required packages
+library(data.table) # V.1.13.2; fread function
+library(dplyr) # V.1.0.2; select function
+library(stringr) # V.1.4.0; str_sub function
 #------------------------------------------------------------------------
 # DATA ENVIRONMENT
 
 # Specify folder location of simulated output files
 importParentFolder='C:/Users/basclab/Desktop/LMESimulation'
-# Create variables corresponding to each subfolder
-importMeanAmpFolder = paste0(importParentFolder, '/MeanAmpOutput_PreMerge')
-importSubjectDataLogFolder = paste0(importParentFolder, '/SubjectDataLog')
+# Create variables corresponding to each subfolder location
+importMeanAmpFolder = paste0(importParentFolder, '/01_MeanAmpOutput_PreMerge')
+importSubjectDataLogFolder = paste0(importParentFolder, '/01_SubjectDataLog')
 
 # Make directory of all .txt files in importMeanAmpFolder
 meanAmpDir = list.files(path = importMeanAmpFolder, pattern = ".txt", full.names = TRUE, recursive = FALSE)
 
 # Specify folder location for saving each sample's long dataframe
-saveFolder='C:/Users/basclab/Desktop/LMESimulation/MeanAmpOutput_Final'
+saveFolder='C:/Users/basclab/Desktop/LMESimulation/02_MeanAmpOutput_Final'
 
 #------------------------------------------------------------------------
 # For each simulated sample: Format mean amplitude output file, merge with 
@@ -93,7 +99,7 @@ saveFolder='C:/Users/basclab/Desktop/LMESimulation/MeanAmpOutput_Final'
 
 for (meanAmpFile in meanAmpDir) { # Loop through each sample
   # Extract sample ID number from filename (e.g., extract '0001' from
-  # 'C:/Users/basclab/Desktop/LME_Simulation/MeanAmpOutput_PreMerge/Sample0001-MeanAmpOutput_PreMerge.txt')
+  # 'C:/Users/basclab/Desktop/LME_Simulation/01_MeanAmpOutput_PreMerge/Sample0001-MeanAmpOutput_PreMerge.txt')
   sampleID <- str_sub(meanAmpFile,-31,-28)
   # Create filename for final dataframe
   saveFilename = paste0(saveFolder, '/Sample', sampleID, '-MeanAmpOutput.csv')

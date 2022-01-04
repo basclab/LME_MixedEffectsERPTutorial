@@ -18,15 +18,23 @@
 % corresponds to one simulated stimulus trial and contains information about
 % the stimulus' emotion condition/actor/presentation number.
 
+% To adapt the script for your experiment design and simulation parameters, 
+% create a eventMarkerMapping spreadsheet for your experiment based on the
+% example template on GitHub: https://github.com/basclab/LME_MixedEffectsERPTutorial/blob/main/SimulationScripts/LMESimulation_EventMarkerMappingKey.xlsx
+% Also, if needed, update the presentNumber and allConditionsArray
+% variables based on your experiment design and desired trial-specific bin
+% labels.
+
 % ***See SimulationScripts README.md available on the LME_MixedEffectsERPTutorial 
 % GitHub for additional details: https://github.com/basclab/LME_MixedEffectsERPTutorial/tree/main/SimulationScripts 
 
-% Requirements:        
+% Requirements:     
+    % - Needs MATLAB R2019a
     % - Filepath to the following folder:
         % - saveBinDescriptorFilesFolder: Folder for saving bin descriptor file and
         %   bin descriptor file key.  
     % - Filepath to the following file used during processing:
-        % - eventMarkerMappingFilename: Spreadsheet listing all the preceding
+        % - eventMarkerMappingFilename: Spreadsheet listing the preceding
         %   codes representing each simulated stimulus' emotion condition/actor 
         %   (i.e., NewPrecedingCode column). 
         %   For more information about this file's columns, see the "Key" sheet in this file. 
@@ -97,7 +105,7 @@ binDescriptorTable = table({}, {}, {},'VariableNames',{'binNumber','binLabel','e
 
 % Specify folder location for saving bin descriptor file and bin descriptor file key
 saveBinDescriptorFilesFolder = 'C:\Users\basclab\Desktop\LMESimulation';
-saveBinDescriptorFileKey = fullfile(saveBinDescriptorFilesFolder,'LMESimulation_BinDescriptorFileKey.xlsx'); % Filename for bin descriptor file (key used for documentation)
+saveBinDescriptorFileKey = fullfile(saveBinDescriptorFilesFolder,'LMESimulation_BinDescriptorFileKey.xlsx'); % Filename for bin descriptor file key (used for documentation)
 saveBinDescriptorFile = fullfile(saveBinDescriptorFilesFolder,'LMESimulation_BinDescriptorFile.txt'); % Filename for bin descriptor file (used for ERPLAB processing)
 
 %% 1. GENERATE ALL SIMULATED TRIAL EVENT MARKERS
@@ -112,7 +120,7 @@ allPrecCode = eventMarkerMapping.NewPrecedingCode;
 % "30108", "30109", "30110"])
 allConditionsArray = strcat(repelem(allPrecCode,10), repmat(presentNumberArray,length(allPrecCode),1));
 
-%% 2. CREATE TRIAL-SPECIFIC BINS (EACH PRESENTATION OF A UNIQUE STIMULUS HAS A BIN)
+%% 2. CREATE TRIAL-SPECIFIC BINS (I.E., EACH PRESENTATION OF A UNIQUE STIMULUS HAS A BIN)
 
 % Specify the bin numbers for each unique stimulus presentation by 
 % counting the number of unique event markers in the allConditionsArray. 
@@ -128,7 +136,8 @@ binDescriptorTable = table(num2cell(trialSpecificBinNumber), cellstr(allConditio
 
 %% 3. SAVE TRIAL-SPECIFIC BINS INTO A BIN DESCRIPTOR FILE KEY
 
-% Save binDescriptorTable as a spreadsheet
+% Save binDescriptorTable as a bin descriptor file key spreadsheet
+% for documentation
 writetable(binDescriptorTable, saveBinDescriptorFileKey);
 
 %% 4. SAVE TRIAL-SPECIFIC BINS INTO A BIN DESCRIPTOR FILE
@@ -140,19 +149,19 @@ writetable(binDescriptorTable, saveBinDescriptorFileKey);
 binNumberArray = (binDescriptorTable.binNumber)';
 binLabelArray = (string(char(binDescriptorTable.binLabel)))';
 binEventMarkerArray = strtrim((string(char(binDescriptorTable.eventMarker))))';
-binDescriptorFile_Raw = vertcat(binNumberArray, binLabelArray, binEventMarkerArray);
+binDescriptorFile_raw = vertcat(binNumberArray, binLabelArray, binEventMarkerArray);
 
 % Specify the format for saving the bin number/label/event marker in 
 % the bin descriptor file:
-    % bin Number (e.g., bin 1)
-    % bin Label (e.g., 30101)
+    % bin number (e.g., bin 1)
+    % bin label (e.g., 30101)
     % .{eventMarker1} (e.g., .{30101})
 % For more information, see the following ERPLAB tutorial: https://github.com/lucklab/erplab/wiki/Assigning-Events-to-Bins-with-BINLISTER:-Tutorial
 binDescriptorFileSpec = 'bin %.0f\n%s\n.{%s}\n \n';
 
 % Create and save the bin descriptor file based on the above formatting guidelines 
 fid = fopen(saveBinDescriptorFile, 'w');
-fprintf(fid, binDescriptorFileSpec, binDescriptorFile_Raw);
+fprintf(fid, binDescriptorFileSpec, binDescriptorFile_raw);
 fclose(fid);
 
 clear % Clear variable workspace

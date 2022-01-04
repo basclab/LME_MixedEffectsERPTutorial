@@ -1,28 +1,31 @@
 # LME Simulation Script: 4. Extract Model Output
 
-# This script imports each simulated data sample's mean amplitude file and 
-# induces missing trials based on the specified missingness pattern 
+# This script imports each simulated data sample's merged mean amplitude file  
+# and induces missing trials based on the specified missingness pattern 
 # (e.g., more missing data in later trials and in younger subjects) and 
 # percentage of subjects with low trial-count (e.g., 6% of subjects are induced
-# to have less than 10 trials/condition remaining). Then, an linear mixed 
+# to have less than 10 trials/condition remaining). Then, a linear mixed 
 # effects (LME) model is fitted to the trial-level dataset. Next, casewise 
 # deletion is performed (subjects with less than 10 trials/emotion condition
 # are removed) and the trial-averaged dataset is used to fit an ANOVA model. 
 # Estimated marginal means are extracted for each emotion condition and model. 
 
-# In addition, step 5 provides an example of a power calculation based
-# on the percentage of linear effects models that detected the effect of interest 
-# (e.g., condition difference).
+# In addition, step 5 provides code for calculating root mean squared error
+# (RMSE) and relative bias to assess the divergence of each model's marginal means
+# from the true population mean. Step 6 provides an example of a power calculation 
+# based on the percentage of linear effects models that detected the effect of 
+# interest (e.g., condition difference).
 
 # To adapt the script for your experiment design and simulation parameters, 
 # code from step 1 ("Define Simulation-Level Variables") and the LME and ANOVA 
 # model formulas can be modified (e.g., to include three emotion conditions, 
-# simulate age as a covariate, etc.). 
+# model age as a covariate, etc.). 
 
 # ***See SimulationScripts README.md available on the LME_MixedEffectsERPTutorial 
 # GitHub for additional details: https://github.com/basclab/LME_MixedEffectsERPTutorial/tree/main/SimulationScripts 
 
 # Requirements: 
+  # - Needs R Version 3.6.1 and packages listed in lines 123-133
   # - importFolder: Folder containing formatted .csv files created during 
   #   LMESimulation_03_OrganizeDataFiles.R. Each .csv file is imported as the 
   #   dfOriginal variable and contains the following columns, which are labeled  
@@ -35,7 +38,7 @@
       # - ACTOR: Simulated stimulus actor ID (i.e., 01, 02, 03, 04, 05)
       # - presentNumber: Presentation number of specific stimulus (emotion 
       #   condition/actor) ranging from 1 to 10
-      # - meanAmpNC: Simulated mean amplitude value (in units of microvolts)
+      # - meanAmpNC: Simulated NC mean amplitude value (in units of microvolts)
   # - saveFolder: Folder for saving the output files (see below) from the script. 
   # - See instructions in step 1 for specifying the original simulation 
   #   parameters from the MATLAB scripts (e.g., number of subjects per sample)
@@ -50,14 +53,15 @@
   # 3. Import simulated data files and run functions to induce missing trials and 
   #    fit LME and ANOVA models
   # 4. Save output files
-  # 5. (Optional) Calculate power of LME model
+  # 5. (Optional) Calculate RMSE and relative bias of model estimates
+  # 6. (Optional) Calculate power of LME model
 
 # Outputs: 
   # - modelOutput: One .csv file formatted as a long dataframe with the following
-  #   columns. Output values are extracted from LME and ANOVA models for the 
-  #   population dataset (i.e., no missing trials) and for each of the specified 
+  #   columns. Output values are extracted from LME and ANOVA models fitted to the 
+  #   population dataset (i.e., no missing trials) and each of the specified 
   #   percentages of subjects with low trial-count (see caseDeletionPct column below).
-    # - emotion: Emotion condition label (i.e., A, B) or the condition 
+    # - emotion: Simulated emotion condition label (i.e., A, B) or the condition 
     #   difference pairwise comparison (A - B) 
     # - estimate: Estimated marginal mean 
     # - SE: Standard error
@@ -77,15 +81,15 @@
     # - caseDeletionPct: Percent of subjects with less than 10 trials/condition that
     #   were casewise deleted prior to ANOVA analysis. 0% indicates that missing 
     #   trials were induced but no subjects were casewise deleted (all subjects 
-    #   met the 10 trials/condition threshold). Pop. indicates no missing trial 
+    #   met the 10 trials/condition threshold). Pop. indicates no missing trials 
     #   and no casewise deletion.
     # - sample: The simulated data sample ID (e.g., 1)
   # - trialCountOutput: One .csv file formatted as a long dataframe with the
   #   following columns. This file documents the number of remaining trials per
   #   subject and emotion condition. These values are reported for each sample and 
   #   specified percentage of subjects with low trial-count.
-    # - SUBJECTID: Subject ID (e.g., 01, 02, ...)
-    # - emotion: Emotion condition label (i.e., A, B)
+    # - SUBJECTID: Simulated subject ID (e.g., 01, 02, ...)
+    # - emotion: Simulated emotion condition label (i.e., A, B)
     # - trialN: Number of remaining trials for this subject and emotion condition
     # - caseDeletionPct: Percent of subjects with less than 10 trials/condition that
     #   were casewise deleted prior to ANOVA analysis. 0% indicates that missing 
@@ -94,22 +98,44 @@
     #   and no casewise deletion.
     # - sample: The simulated data sample ID (e.g., 1)
 
-library(plyr) # ddply function
-library(lme4) # used for creating lme models
-library(lmerTest) # used for returning p-value for lme models
-library(gsubfn) # list function for assigning multiple outputs
-library(data.table) # used for fread function
-library(dplyr) # select function
-library(performance) # check_convergence function
-library(afex) # ANOVA analysis
-library(emmeans) # extract estimated marginal means
-library(car) # contr.sum function
-library(stringr) # str_sub function
+# Copyright 2021 Megan J. Heise, Serena K. Mon, Lindsay C. Bowman
+# Brain and Social Cognition Lab, University of California Davis, Davis, CA, USA.
+
+# Permission is hereby granted, free of charge, to any person obtaining a 
+# copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+# and/or sell copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following conditions:
+
+# The above copyright notice and this permission notice shall be included 
+# in all copies or substantial portions of the Software.
+
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+# Load required packages
+library(plyr) # V.1.8.6; ddply function
+library(lme4) # V.1.1-25; used for creating lme models
+library(lmerTest) # V.3.1-3; used for returning p-value for lme models
+library(gsubfn) # V.0.7; list function for assigning multiple outputs
+library(data.table) # V.1.13.2; fread function
+library(dplyr) # V.1.0.2; select function
+library(performance) # V.0.6.1; check_convergence function
+library(afex) # V.0.28-1; ANOVA analysis
+library(emmeans) # V.1.5.3; extract estimated marginal means
+library(car) # V.3.0-10; contr.sum function
+library(stringr) # V.1.4.0; str_sub function
 #------------------------------------------------------------------------
 # DATA ENVIRONMENT
 
 # Specify folder location of formatted data files
-importFolder <- 'C:/Users/basclab/Desktop/LMESimulation/MeanAmpOutput_Final/'
+importFolder <- 'C:/Users/basclab/Desktop/LMESimulation/02_MeanAmpOutput_Final/'
 
 # Make directory of all .csv files in importFolder
 fileDir <- list.files(path = importFolder, pattern = ".csv", full.names = TRUE, recursive = FALSE)
@@ -117,7 +143,7 @@ sampleN <- length(fileDir) # Number of simulated samples
 
 # Specify folder location for saving model's estimated marginal means and number
 # of remaining trials per subject
-saveFolder <- 'C:/Users/basclab/Desktop/LMESimulation/ModelOutput/'
+saveFolder <- 'C:/Users/basclab/Desktop/LMESimulation/03_ModelOutput/'
 
 set.seed(20210329) # Specify seed for reproducible results
 
@@ -157,8 +183,9 @@ emotionAvgValue <- c(mean(seq(emotionA, emotionA+(emotionSlope*(presentN-1)), by
 presentNumberWeight6to10 <- 0.7
 presentNumberWeight1to5 <- 1-presentNumberWeight6to10
 # Calculate the total number of trials per condition for each group of presentation
-# numbers (i.e., 6-10 and 1-5). This value is used to scale each individual trial's 
-# presentation number weight so that the weights will sum to 1 (see lines 491-493). 
+# numbers (i.e., presentation numbers 6-10 and 1-5). This value is used to scale each  
+# individual trial's presentation number weight so that the weights will sum to 1
+# (see lines 521-523). 
 presentNumberTrials6to10 <- emotionTrialN/2 
 presentNumberTrials1to5 <- emotionTrialN/2 
 
@@ -166,11 +193,11 @@ presentNumberTrials1to5 <- emotionTrialN/2
 # weights are used to specify missingness pattern for the between-subjects
 # effect (e.g., if ageWeightYounger = 0.7, then 70% of subjects selected for more
 # missing trials and subsequent casewise deletion were from the younger age group). 
-ageWeightYounger <- 0.5
+ageWeightYounger <- 0.7
 ageWeightOlder <- 1-ageWeightYounger
 # Calculate the total number of subjects in the younger and older age groups. This
 # value is used to scale each subject's age weight so that the weights will sum to 
-# 1 (see lines 494-495).
+# 1 (see lines 524-525).
 ageTrialsYounger <- subjectN/2
 ageTrialsOlder <- subjectN/2
 
@@ -186,7 +213,7 @@ caseDeletionPctArray <- c(0, 6, 11, 32)
 # induceMissingTrials: Function to randomly select subjects for inducing
 # low trial counts and subsequent casewise deletion prior to ANOVA analysis. 
 # In addition, missing trials are induced based on the specified probability
-# weights from lines 148-175 and 491-495. 
+# weights from lines 174-202 and 521-525. 
 # - Format: 
 #     list[dfMissing, subjectCaseDeletion, trialCount] <- induceMissingTrials(dfOriginal, caseDeletionPct) 
 # - Inputs:
@@ -217,30 +244,32 @@ induceMissingTrials <- function(dfOriginal, caseDeletionPct) {
   # is rounded up. 
   caseDeletionN <- ceiling((caseDeletionPct/100)*subjectN)
   
-  # Randomly sample the subject IDs that will have low trial counts based on the 
+  # Randomly sample the subject IDs that will have low trial-counts based on the 
   # specified age weights and the caseDeletionN variable
   subjectCaseDeletion <- sample(dfAgeWeight$SUBJECTID, caseDeletionN, 
                                 replace = FALSE, prob=dfAgeWeight$ageWeight)
   
   # Calculate the maximum number of trials that can be removed from each condition
-  # before the subject is considered to have a low trial count and would be
+  # before the subject is considered to have a low trial-count and would be
   # casewise deleted (e.g., if there are 50 trials, a maximum of 40 trials can
-  # be removed for an included (not casewise deleted) subject)
+  # be removed for an included (i.e., not casewise deleted) subject)
   trialMissingThreshold <- emotionTrialN - 10
   
   # Loop through each subject and randomly select a subset of trials from each
   # condition to remove
   for (subject in dfAgeWeight$SUBJECTID) {
     
-    # Generate the number of missing trials to induce for each emotion condition
+    # Generate the number of missing trials to induce for each emotion condition.
+    # NOTE: If the number of emotion conditions is not 2, the trialMissing variable
+    # must be modified accordingly.  
     if (subject %in% subjectCaseDeletion) { 
       
-      # For subjects with a low trial count, at least one emotion condition will 
+      # For subjects with a low trial-count, at least one emotion condition will 
       # have less than 10 trials remaining
       trialMissing <- c(sample(x=(trialMissingThreshold+1):emotionTrialN, size = 1),
                         sample(x=0:emotionTrialN, size = emotionN-1, replace = TRUE))                       
     } else { 
-      # For subjects who do NOT have a low trial count, all emotion conditions
+      # For subjects who do NOT have a low trial-count, all emotion conditions
       # will have at least 10 trials
       trialMissing <- sample(x=0:trialMissingThreshold, size = emotionN, 
                              replace = TRUE)
@@ -248,7 +277,8 @@ induceMissingTrials <- function(dfOriginal, caseDeletionPct) {
     
     # Shuffle order of emotion conditions and then loop through each condition
     # (This line is added so that one condition does not consistently have more
-    # missing trials.)
+    # missing trials due to how the trialMissing variable is defined for subjects
+    # with low trial-count.)
     emotionLabelRand <- sample(emotionLabel)
     for (j in 1:length(emotionLabelRand)) {
       
@@ -393,12 +423,12 @@ extractModelOutput <- function(modelInput, modelType) {
   # Record the model type (e.g., "LME) in the dataframe
   modelOutput$modelType <- modelType 
   
-  return(modelOutput) # Return output variables
+  return(modelOutput) # Return output variable
 }
 
 # fitMissData: Function to induce missing trials and extract model output
 # from the specified dataset and percentage of subjects with low trial-count. 
-# This function relies on the induceMissingTrials and extractModelOutput 
+# This function uses the induceMissingTrials and extractModelOutput 
 # functions listed above. 
 # - Format: 
 #     list[modelOutput_misData, trialCount] <- fitMissData(dfOriginal, caseDeletionPct)
@@ -409,7 +439,7 @@ extractModelOutput <- function(modelInput, modelType) {
   # - caseDeletionPct: Percent of subjects with low trial-count (i.e., less than
   #   10 trials/condition).
 # - Outputs:
-  # - modelOutput_misData: Dataframe combining LME and ANOVA outputs from the
+  # - modelOutput_misData: Dataframe containing LME and ANOVA outputs from the
   #   extractModelOutput function. It contains the following columns:
   #   emotion, estimate, SE, df, lower.CL, upper.CL, t.ratio, p.value, inCL,
   #   modelProblem, modelType, caseDeletionPct (see Outputs section at the
@@ -475,7 +505,7 @@ for (sampleNum in 1:sampleN) { # Loop through each simulated data sample
   dfOriginal <- fread(fileDir[sampleNum]) 
   
   # Extract sample ID number from filename (e.g., extract '0001' from
-  # 'C:/Users/basclab/Desktop/LMESimulation/MeanAmpOutput_Final/Sample0001-MeanAmpOutput.csv')
+  # 'C:/Users/basclab/Desktop/LMESimulation/02_MeanAmpOutput_Final/Sample0001-MeanAmpOutput.csv')
   sampleID <- str_sub(fileDir[sampleNum],-22,-19)
   
   # Specify desired columns as factors for subsequent analysis 
@@ -487,7 +517,7 @@ for (sampleNum in 1:sampleN) { # Loop through each simulated data sample
   contrasts(dfOriginal$age) <- contr.Sum(levels(dfOriginal$age)) 
   
   # Create probability weight columns for presentation number and age group using 
-  # values specified in step 1. 
+  # values specified in step 1
   dfOriginal$presentNumberWeight <- ifelse(dfOriginal$presentNumber >5,
                                            (presentNumberWeight6to10/presentNumberTrials6to10), 
                                            (presentNumberWeight1to5/presentNumberTrials1to5))
@@ -510,7 +540,7 @@ for (sampleNum in 1:sampleN) { # Loop through each simulated data sample
                          within = c("emotion"))
   ANOVAPop_output <- extractModelOutput(fit.ANOVAPop, 'ANOVA') # Extract estimated marginal means
   
-  # Save all output values for both LME and ANOVA models into one dataframe
+  # Save all output values for both LME and ANOVA models 
   modelOutput_oneSample <- bind_rows(LMEPop_output, ANOVAPop_output)
   modelOutput_oneSample$caseDeletionPct <- 'Pop.' # Specify that models were fitted to the population dataset
   
@@ -522,8 +552,7 @@ for (sampleNum in 1:sampleN) { # Loop through each simulated data sample
     # and extract model outputs
     list[modelOutput_misData, trialCount] <- fitMissData(dfOriginal, caseDeletionPctArray[i])
     
-    # Save all output values for this sample and percentage of subjects with low
-    # trial-count in the temporary variable created for this sample
+    # Save all output values and trial counts 
     modelOutput_oneSample <- bind_rows(modelOutput_oneSample, modelOutput_misData)
     trialCountOutput_oneSample <- bind_rows(trialCountOutput_oneSample, trialCount)
     
@@ -548,22 +577,43 @@ modelOutputFilename = paste0(saveFolder, 'sampleN',sampleN,
 trialCountFilename = paste0(saveFolder, 'sampleN',sampleN,
                             '_subN',subjectN,'_trialCount.csv')
 
-print('Saving final output')
 fwrite(modelOutput, file = modelOutputFilename, row.names = FALSE)
 fwrite(trialCountOutput, file = trialCountFilename, row.names = FALSE)
 
 #-----------------------------------------------------------------------
-# 5. (OPTIONAL) CALCULATE POWER OF LME MODEL
+# 5. (OPTIONAL) CALCULATE RMSE AND RELATIVE BIAS OF MODEL ESTIMATES
+
+# In this example, we are interested in the divergence of the LME
+# model's estimated marginal means of emotion condition A from the
+# true population mean. We focus on LME models that have been fitted
+# to datasets with missing trials induced so that 32% of subjects
+# have less than 10 trials/condition. We use root mean squared 
+# error (RMSE) and relative bias (%) to assess divergence.
+
+# Extract estimated marginal means of emotion A from LME models that
+# have been fitted to datasets with the above specifications
+LMEOutput_A_32Pct <- filter(modelOutput, emotion == "A" & modelType == "LME" & 
+                          caseDeletionPct == "32%")
+
+# Calculate root mean squared error from the true population mean
+RMSE_A_32Pct <- sqrt(mean((LMEOutput_A_32Pct$estimate-emotionAvgValue[1])^2, na.rm = TRUE))
+
+# Calculate average relative bias (%) from the true population mean 
+# (Equation from Enders et al., 2020)
+RelBias_A_32Pct <- mean(100*((LMEOutput_A_32Pct$estimate-emotionAvgValue[1])/emotionAvgValue[1]))
+
+#-----------------------------------------------------------------------
+# 6. (OPTIONAL) CALCULATE POWER OF LME MODEL
 
 # In this example, we are interested in the power for detecting a significant
 # condition difference between emotion conditions A and B with an LME model.
-# Our dataset consists of 1,000 simulated data samples with missing trials 
+# Our datasets consist of 1,000 simulated data samples with missing trials 
 # induced so that 32% of subjects have less than 10 trials/condition
 
-# Extract the LME models that have been fitted to a dataset with the above
-# specifications
-modelOutput %>% filter(emotion == "A - B" & modelType == "LME" & 
-                         caseDeletionPct == "32%") -> modelOutput_LMECondDiff
+# Extract the condition difference output from LME models that have been fitted 
+# to datasets with the above specifications
+modelOutput_LMECondDiff <- modelOutput %>% filter(emotion == "A - B" & modelType == "LME" & 
+                                                    caseDeletionPct == "32%")
 
 # Extract number of LME models that found a significant condition difference (p<0.05)
 modelOutput_LMECondDiffSig <- sum(modelOutput_LMECondDiff$p.value <0.05, na.rm = TRUE)

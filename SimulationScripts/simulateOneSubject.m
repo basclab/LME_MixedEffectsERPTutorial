@@ -2,19 +2,25 @@
 
 % Purpose: This function simulates an ERP data file for one subject. The file
 % contains trial-level ERP waveforms that have been generated for 100 trials
-% consisting of 2 emotion conditions and 5 different 'actors' (with 10
-% presentations each). 
+% consisting of 2 emotion conditions, 5 different 'actors', and 10
+% presentations of each emotion condition/actor combination.  
 
 % In this function, the following simulation parameters are specified:
 % epoch window, sampling rate, presentation number of each stimulus,
-% emotion peak amplitude and latency, subject peak amplitude intercept
+% emotion peak amplitude and latency, peak amplitude decay (habituation)
+% for successive stimulus presentations, subject peak amplitude intercept
 % and latency shift, trial-level noise amplitude, and event marker
 % preceding codes. 
 
-% Note that peak amplitude values were chosen to produce a specific mean 
-% amplitude value when extracted over a 300-500 ms time window. For example, 
-% emotion A has a peak amplitude of 589 µV, which corresponds to a mean 
-% amplitude of -9.995 µV over a 300-500 ms time window. 
+% The amplitude of trial-level waveforms are modulated by emotion, 
+% presentation number, actor, subject, age, and simulated noise. The peak
+% latency of trial-level waveforms are modulated by subject.  
+
+% Note that peak amplitude values for each variable (e.g., emotion condition) 
+% were chosen to produce a specific mean amplitude value when extracted
+% from C4 over a 300-500 ms time window. For example, emotion A has a peak
+% amplitude of 589 µV, which corresponds to a mean amplitude of
+% -9.995 µV over a 300-500 ms time window at C4. 
 
 % Note that sections of this function are adapted from the LME tutorial
 % scripts. For more information, see comments below in steps 4-6.
@@ -23,27 +29,27 @@
 % GitHub for additional details: https://github.com/basclab/LME_MixedEffectsERPTutorial/tree/main/SimulationScripts 
 
 % Format:
-    % ERP = simulateOneSubject(sampleActorIntArray, sampleAgeInt_OneSubject, leadField, sourceLocs)
+    % ERP = simulateOneSubject(sampleActorPeakAmpArray, sampleAgePeakAmp_oneSubject, leadField, sourceLocs)
 
 % Inputs:
-    % - sampleActorIntArray: Array of actor intercepts randomly generated in
+    % - sampleActorPeakAmpArray: Array of actor intercepts randomly generated in
     %   the simulateOneSample function. The first value corresponds to the
     %   intercept for actor 01, the second value corresponds to actor 02, etc.
-    % - sampleAgeInt_OneSubject: Age intercept for this subject's assigned
-    %   age group. This value was created in the simulateOneSample
+    % - sampleAgePeakAmp_oneSubject: Age intercept for this subject's assigned
+    %   age group. This value was specified in the simulateOneSample
     %   function.
     % - leadField: Data structure created in the simulateAllSamples
-    %   function for specifying the lead field, channel montage, channel
+    %   function for specifying the lead field, channel montage, channels
     %   of interest, and dipole orientation.
     % - sourceLocs: Index used to identify the dipole location from the
     %   leadField structure. This variable was created in the
     %   simulateAllSamples function. 
     
 % Other Requirements: 
-    % - Needs EEGLAB v 2019_0, ERPLAB v 8.01, SEREEGA v 1.1.0
+    % - Needs MATLAB R2019a, EEGLAB v 2019_0, ERPLAB v 8.01, SEREEGA v 1.1.0
         % - For more information on EEGLAB, see: Delorme, A. & Makeig, S. (2004).
-        %   EEGLAB: An open source toolbox for analysis of single-trial EEG dynamics.
-        %   https://sccn.ucsd.edu/eeglab/index.php
+        %   EEGLAB: An open source toolbox for analysis of single-trial EEG dynamics
+        %   including independent component analysis. https://sccn.ucsd.edu/eeglab/index.php
         % - For more information on ERPLAB, see: Lopez-Calderon, J., & Luck, S. J.
         %   (2014). ERPLAB: An open-source toolbox for the analysis of event-related
         %   potentials. https://erpinfo.org/erplab/    
@@ -71,12 +77,12 @@
     % - ERP: ERP file containing the subject's trial-level waveforms.
 
 % Usage Example:
-    % >> sampleActorIntArray = [747.6118, 835.9961, -646.3598, -40.6589, -494.9643];
-    % >> sampleAgeInt_OneSubject = 118;
+    % >> sampleActorPeakAmpArray = [747.6118, 835.9961, -646.3598, -40.6589, -494.9643];
+    % >> sampleAgePeakAmp_oneSubject = 118;
     % >> leadField = lf_generate_frompha('0to2','128','labels',{'E36','E104'});
     % >> sourceLocs = lf_get_source_nearest(leadField, [10 46 18]);
     % >> leadField.orientation(sourceLocs,:) = [0.57 -0.70 -0.01];
-    % >> ERP = simulateOneSubject(sampleActorIntArray, sampleAgeInt_OneSubject, leadField, sourceLocs)
+    % >> ERP = simulateOneSubject(sampleActorPeakAmpArray, sampleAgePeakAmp_oneSubject, leadField, sourceLocs)
 
 % Copyright 2021 Megan J. Heise, Serena K. Mon, Lindsay C. Bowman
 % Brain and Social Cognition Lab, University of California Davis, Davis, CA, USA.
@@ -99,7 +105,7 @@
 % OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 % SOFTWARE.
 
-function ERP = simulateOneSubject(sampleActorIntArray, sampleAgeInt_OneSubject, leadField, sourceLocs)
+function ERP = simulateOneSubject(sampleActorPeakAmpArray, sampleAgePeakAmp_oneSubject, leadField, sourceLocs)
 %% 1. DEFINE SIMULATION PARAMETERS 
 
     % Specify filepath of bin descriptor file
@@ -115,35 +121,36 @@ function ERP = simulateOneSubject(sampleActorIntArray, sampleAgeInt_OneSubject, 
     presentNumberArray = repmat(pad(string(1:presentN),2,'left','0')',presentN,1); % Create a string array with values 1, 2, ..., presentN
 
     % Create epoch structure based on above parameters: each stimulus is
-    % presented 10 times, data is sampled at 250 Hz, and the epoch consists of
+    % presented 10 times, data are sampled at 250 Hz, and the epoch consists of
     % a 200 ms pre-stimulus period and 600 ms post-stimulus period.
     epochs = struct('n', presentN, 'srate', samplingRate, 'length', preStimPeriod+postStimPeriod,'prestim',preStimPeriod);
 
     % Define parameters for each emotion condition (A and B):
     % For each trial, the emotion condition's peak amplitude value is drawn 
     % from a normal distribution with the following mean and standard 
-    % deviation values.
-    emotionIntArray = [589, 707]; % Peak amplitude population mean for each emotion condition distribution (one distribution/condition; values correspond to mean amplitude of -9.995 and -11.997 µV for A and B, respectively)
-    emotionDv = 295*3; % Peak amplitude deviation (defined as 3*standard deviation where a peak amplitude standard deviation of 295 corresponds to a mean amplitude standard deviation of 5.006 µV)
-    emotionSlope = -795; % Peak amplitude slope (i.e., change in amplitude with each successive presentation). This value corresponds to a mean amplitude increase of 1.499 µV.
-    emotionPeakLatency = 600; % Peak latency (400 ms post-stimulus)
-    emotionPeakWindow = 200; % Window length (i.e., a window of 300-500 ms has a length of 200 ms)
+    % deviation values and added to the trial's overall peak amplitude.
+    emotionPeakAmpArray = [589, 707]; % Peak amplitude population mean for each emotion condition distribution (one distribution per condition; values correspond to mean amplitude of -9.995 and -11.997 µV for A and B, respectively)
+    emotionPeakAmpDv = 3*295; % Peak amplitude deviation (defined as 3*standard deviation where a peak amplitude standard deviation of 295 corresponds to a mean amplitude standard deviation of 5.006 µV)
+    emotionPeakAmpSlope = -795; % Peak amplitude slope (i.e., change in amplitude with each successive presentation). This value corresponds to a mean amplitude increase of 1.499 µV.
+    emotionPeakLatency = preStimPeriod+400; % Peak latency (400 ms post-stimulus)
+    emotionPeakWindow = 200; % Window length for simulated peak (i.e., a peak spanning 300-500 ms has a window length of 200 ms)
 
-    % Define parameters for each subject:
+    % Define parameters for each subject's intercept:
     % For the subject's peak amplitude intercept, one value is drawn from a
     % normal distribution with the following parameters. This amplitude
-    % intercept is then added to the subject's peak amplitude. 
-    subjectMean = 0; % Peak amplitude population mean for subject intercept distribution
-    subjectSD = 589; % Peak amplitude population standard deviation for subject intercept distribution (corresponds to mean amplitude of 9.995 µV)
+    % intercept is then added to the trial's overall peak amplitude. 
+    subjectPeakAmpMean = 0; % Peak amplitude population mean for subject intercept distribution
+    subjectPeakAmpSD = 589; % Peak amplitude population standard deviation for subject intercept distribution (value corresponds to mean amplitude of 9.995 µV)
     % For the subject's peak latency shift, one value is drawn from the
     % following array using a uniform sampling distribution and used to
-    % shift the subject's waveform. This latency shift is constant across
-    % all trials and corresponds to a minimal mean amplitude difference
-    % between subjects (ranging from -0.02 to 0.06 µV). 
+    % shift the subject's peak from the emotionPeakLatency specified above. 
+    % This latency shift is constant across all trials and corresponds to a
+    % minimal change in mean amplitude between subjects (ranging from 
+    % -0.02 to 0.06 µV). 
     subjectPeakLatencyShiftArray = [-20 20]; 
     
-    % Specify number of unique actors (based on sampleActorIntArray input argument)
-    actorN = length(sampleActorIntArray);
+    % Specify number of unique actors (based on sampleActorPeakAmpArray input argument)
+    actorN = length(sampleActorPeakAmpArray);
 
     % Specify each stimulus' 3-digit preceding code used for creating event  
     % markers. Each preceding code corresponds to one emotion condition and actor. 
@@ -154,13 +161,13 @@ function ERP = simulateOneSubject(sampleActorIntArray, sampleAgeInt_OneSubject, 
     % NOTE: The above array is ordered based on emotion condition such that all
     % markers starting with "6" belong to emotion condition A and are listed
     % first. Markers starting with "3" belong to emotion B and are listed
-    % second. This is important for ensuring that the correct emotion condition
-    % population mean is assigned in step 3.
+    % second. This order is important for ensuring that the correct emotion 
+    % condition population mean is assigned in step 3.
     
     % Define amplitude of pink Gaussian noise (corresponds to trial-level
     % mean amplitude noise that are normally distributed with a mean of
     % approximately 0 µV and a standard deviation of 3 µV). 
-    noiseAmplitude = 246; 
+    noiseAmp = 246; 
 
 %% 2. DEFINE FUNCTIONS FOR GENERATING ERP AND NOISE SIGNAL CLASSES
 
@@ -168,24 +175,25 @@ function ERP = simulateOneSubject(sampleActorIntArray, sampleAgeInt_OneSubject, 
     % peak amplitude and latency. The signal class is then used by the
     % generate_scalpdata function to simulate trial-level waveforms.  
     % - Inputs:
-        % - emotionPeakAmplitude: Peak amplitude summed over the amplitude values
-        %   for emotion condition population mean, subject intercept, actor intercept, 
-        %   and age intercept. 
-        % - subjectPeakLatencyWithShift: Peak latency summed over the default peak
+        % - overallPeakAmp: Peak amplitude summed over the peak amplitude values
+        %   for emotion condition population mean, actor intercept, subject intercept, 
+        %   and age intercept. Changes in mean amplitude due to
+        %   presentation number are specified separately (see emotionPeakAmpSlope variable).  
+        % - overallPeakLatency: Peak latency summed over the default peak
         %   latency for this component (i.e., emotionPeakLatency) and the subject's
         %   peak latency shift (i.e., a value drawn from the subjectPeakLatencyShiftArray).   
         % - Other variables (e.g., emotionPeakWindow) are defined above and held
         %   constant for all simulated subjects. 
     % - Output: 
         % - ERP signal class with the specified parameters. 
-    erp = @(emotionPeakAmplitude, subjectPeakLatencyWithShift) ...
+    erp = @(overallPeakAmp, overallPeakLatency) ...
         utl_check_class(struct( ...
         'type', 'erp', ...
-        'peakLatency', subjectPeakLatencyWithShift, ...
+        'peakLatency', overallPeakLatency, ...
         'peakWidth', emotionPeakWindow, ...
-        'peakAmplitude', emotionPeakAmplitude, ...
-        'peakAmplitudeSlope', emotionSlope, ...
-        'peakAmplitudeDv', emotionDv, ...
+        'peakAmplitude', overallPeakAmp, ...
+        'peakAmplitudeSlope', emotionPeakAmpSlope, ...
+        'peakAmplitudeDv', emotionPeakAmpDv, ...
         'peakLatencyDv', 0, ...
         'peakLatencyShift', 0));
 
@@ -194,46 +202,47 @@ function ERP = simulateOneSubject(sampleActorIntArray, sampleAgeInt_OneSubject, 
     % with the ERP signal class and used by the generate_scalpdata function  
     % to simulate trial-level waveforms.  
     % - Input: This function does not require any inputs. The noise amplitude
-    %   is defined above and held constant for all simualted subjects. 
+    %   is defined above and held constant for all simulated subjects. 
     % - Output: 
         % - Noise signal class with the specified parameters. 
     noise = @() ...
         utl_check_class(struct( ...
         'type', 'noise', ...
-        'amplitude', noiseAmplitude, ... 
+        'amplitude', noiseAmp, ... 
         'amplitudeDv', 0, ... 
         'color', 'pink'));
 
 %% 3. GENERATE TRIAL-LEVEL WAVEFORMS WITH PARAMETERS AND FUNCTIONS FROM STEPS 1-2
 
     % Randomly select this subject's peak amplitude intercept from a normal distribution with above parameters
-    subjectIncrementInt = normrnd(subjectMean,subjectSD); 
+    subjectPeakAmpIncrement = normrnd(subjectPeakAmpMean,subjectPeakAmpSD); 
     
     % Generate peak amplitude array with one value for each unique stimulus
     % (emotion condition/actor). Each value consists of the sum of the emotion
     % condition population mean, actor intercept, subject intercept, and age
     % intercept. (NOTE: While the emotion condition and actor intercept
     % varies by stimulus, the subject and age intercepts do not.) 
-        % - For example, the first value of subjectEmotionModelInt is the sum
+        % - For example, the first value of overallPeakAmpArray is the sum
         %   of the peak amplitudes for emotion condition A + actor 01 + subject
         %   intercept + age intercept. The second value is the sum of emotion
         %   A + actor 02 + subject intercept + age intercept, and so on. 
-        % - The emotionDv deviation (based on the emotion condition population
-        %   standard deviation) is taken into account later with the erp function.
-    subjectEmotionModelInt = repelem(emotionIntArray,actorN) + repmat(sampleActorIntArray, 1, length(emotionIntArray)) + repmat(subjectIncrementInt,1,presentN) + repmat(sampleAgeInt_OneSubject,1,presentN);
+        % - Variables such as emotionPeakAmpSlope and emotionPeakAmpDv are taken into
+        %   account separately with the erp function.
+    overallPeakAmpArray = repelem(emotionPeakAmpArray,actorN) + repmat(sampleActorPeakAmpArray, 1, length(emotionPeakAmpArray)) + repmat(subjectPeakAmpIncrement,1,presentN) + repmat(sampleAgePeakAmp_oneSubject,1,presentN);
     
     % Randomly select this subject's peak latency shift from the array
-    % specified above and add it to the emotionPeakLatency variable (used
-    % to define the peak latency of this subject's waveform)
-    subjectPeakLatencyWithShift = emotionPeakLatency + randi(subjectPeakLatencyShiftArray,1,1); 
+    % specified above and add it to the emotionPeakLatency variable. The 
+    % overallPeakLatency variable is used to define the peak latency of 
+    % this subject's waveform.
+    overallPeakLatency = emotionPeakLatency + randi(subjectPeakLatencyShiftArray,1,1); 
 
     % Simulate the first stimulus' 10 trial-level waveforms (corresponding to
     % 10 presentations/stimulus). The waveform's amplitude reduces with 
-    % each unique presentation based on the emotionSlope variable. 
-    v = 1; % Counter variable indexing subjectEmotionModelInt
+    % each unique presentation based on the emotionPeakAmpSlope variable. 
+    v = 1; % Counter variable indexing the overallPeakAmpArray variable
     % Define a component consisting of a neural source, dipole orientation and signal (ERP + noise)
     componentTemp1 = struct('source', sourceLocs, ... 
-        'signal', {{erp(subjectEmotionModelInt(v),subjectPeakLatencyWithShift), ...
+        'signal', {{erp(overallPeakAmpArray(v),overallPeakLatency), ...
         noise()}});
     % Validate the component structure
     componentTemp1 = utl_check_component(componentTemp1, leadField);
@@ -249,7 +258,7 @@ function ERP = simulateOneSubject(sampleActorIntArray, sampleAgeInt_OneSubject, 
     % waveforms for all 10 unique stimuli have been simulated
     v = 2;
     componentTemp2 = struct('source', sourceLocs, ...
-        'signal', {{erp(subjectEmotionModelInt(v),subjectPeakLatencyWithShift), ...
+        'signal', {{erp(overallPeakAmpArray(v),overallPeakLatency), ...
         noise()}});
     componentTemp2 = utl_check_component(componentTemp2, leadField);
     dataTemp2 = generate_scalpdata(componentTemp2, leadField, epochs, 'showprogress', 0);
@@ -259,7 +268,7 @@ function ERP = simulateOneSubject(sampleActorIntArray, sampleAgeInt_OneSubject, 
 
     v = 3;
     componentTemp3 = struct('source', sourceLocs, ...
-        'signal', {{erp(subjectEmotionModelInt(v),subjectPeakLatencyWithShift), ...
+        'signal', {{erp(overallPeakAmpArray(v),overallPeakLatency), ...
         noise()}});
     componentTemp3 = utl_check_component(componentTemp3, leadField);
     dataTemp3 = generate_scalpdata(componentTemp3, leadField, epochs, 'showprogress', 0);
@@ -269,7 +278,7 @@ function ERP = simulateOneSubject(sampleActorIntArray, sampleAgeInt_OneSubject, 
 
     v = 4;
     componentTemp4 = struct('source', sourceLocs, ...
-        'signal', {{erp(subjectEmotionModelInt(v),subjectPeakLatencyWithShift), ...
+        'signal', {{erp(overallPeakAmpArray(v),overallPeakLatency), ...
         noise()}});
     componentTemp4 = utl_check_component(componentTemp4, leadField);
     dataTemp4 = generate_scalpdata(componentTemp4, leadField, epochs, 'showprogress', 0);
@@ -279,7 +288,7 @@ function ERP = simulateOneSubject(sampleActorIntArray, sampleAgeInt_OneSubject, 
 
     v = 5;
     componentTemp5 = struct('source', sourceLocs, ...
-        'signal', {{erp(subjectEmotionModelInt(v),subjectPeakLatencyWithShift), ...
+        'signal', {{erp(overallPeakAmpArray(v),overallPeakLatency), ...
         noise()}});
     componentTemp5 = utl_check_component(componentTemp5, leadField);
     dataTemp5 = generate_scalpdata(componentTemp5, leadField, epochs, 'showprogress', 0);
@@ -289,7 +298,7 @@ function ERP = simulateOneSubject(sampleActorIntArray, sampleAgeInt_OneSubject, 
 
     v = 6;
     componentTemp6 = struct('source', sourceLocs, ...
-        'signal', {{erp(subjectEmotionModelInt(v),subjectPeakLatencyWithShift), ...
+        'signal', {{erp(overallPeakAmpArray(v),overallPeakLatency), ...
         noise()}});
     componentTemp6 = utl_check_component(componentTemp6, leadField);
     dataTemp6 = generate_scalpdata(componentTemp6, leadField, epochs, 'showprogress', 0);
@@ -299,7 +308,7 @@ function ERP = simulateOneSubject(sampleActorIntArray, sampleAgeInt_OneSubject, 
 
     v = 7;
     componentTemp7 = struct('source', sourceLocs, ...
-        'signal', {{erp(subjectEmotionModelInt(v),subjectPeakLatencyWithShift), ...
+        'signal', {{erp(overallPeakAmpArray(v),overallPeakLatency), ...
         noise()}});
     componentTemp7 = utl_check_component(componentTemp7, leadField);
     dataTemp7 = generate_scalpdata(componentTemp7, leadField, epochs, 'showprogress', 0);
@@ -309,7 +318,7 @@ function ERP = simulateOneSubject(sampleActorIntArray, sampleAgeInt_OneSubject, 
 
     v = 8;
     componentTemp8 = struct('source', sourceLocs, ...
-        'signal', {{erp(subjectEmotionModelInt(v),subjectPeakLatencyWithShift), ...
+        'signal', {{erp(overallPeakAmpArray(v),overallPeakLatency), ...
         noise()}});
     componentTemp8 = utl_check_component(componentTemp8, leadField);
     dataTemp8 = generate_scalpdata(componentTemp8, leadField, epochs, 'showprogress', 0);
@@ -319,7 +328,7 @@ function ERP = simulateOneSubject(sampleActorIntArray, sampleAgeInt_OneSubject, 
 
     v = 9;
     componentTemp9 = struct('source', sourceLocs, ...
-        'signal', {{erp(subjectEmotionModelInt(v),subjectPeakLatencyWithShift), ...
+        'signal', {{erp(overallPeakAmpArray(v),overallPeakLatency), ...
         noise()}});
     componentTemp9 = utl_check_component(componentTemp9, leadField);
     dataTemp9 = generate_scalpdata(componentTemp9, leadField, epochs, 'showprogress', 0);
@@ -329,15 +338,15 @@ function ERP = simulateOneSubject(sampleActorIntArray, sampleAgeInt_OneSubject, 
 
     v = 10;
     componentTemp10 = struct('source', sourceLocs, ...
-        'signal', {{erp(subjectEmotionModelInt(v),subjectPeakLatencyWithShift), ...
+        'signal', {{erp(overallPeakAmpArray(v),overallPeakLatency), ...
         noise()}});
     componentTemp10 = utl_check_component(componentTemp10, leadField);
     dataTemp10 = generate_scalpdata(componentTemp10, leadField, epochs, 'showprogress', 0);
     EEGTemp10 = utl_create_eeglabdataset(dataTemp10, epochs, leadField, ...
         'marker', convertStringsToChars(emotionPrecCodes(v)));
-    EEG = pop_mergeset(EEG8,EEGTemp10); % Finish merging all of the waveforms together
+    EEG = pop_mergeset(EEG8,EEGTemp10); 
 
-    EEG = epoch2continuous(EEG); % Concatenate all of the epochs into a continuous dataset
+    EEG = epoch2continuous(EEG); % Concatenate the epoched dataset into a continuous dataset
 
 %% 4. UPDATE EVENT MARKER PRECEDING CODES WITH PRESENTATION NUMBER
 
@@ -361,7 +370,7 @@ function ERP = simulateOneSubject(sampleActorIntArray, sampleAgeInt_OneSubject, 
     % pop_binlister function. 
 
     % Create EventList
-    EEG  = pop_creabasiceventlist(EEG, 'AlphanumericCleaning', 'on', 'BoundaryNumeric', {-99}, 'BoundaryString', {'boundary'} );
+    EEG  = pop_creabasiceventlist(EEG, 'AlphanumericCleaning', 'on', 'BoundaryNumeric', {-99}, 'BoundaryString', {'boundary'});
 
     % Assign events to bins
     EEG  = pop_binlister(EEG, 'BDF', binDescriptorFilename, 'IndexEL',  1, 'SendEL2', 'EEG', 'UpdateEEG', 'off', 'Voutput', 'EEG','Report','off');
@@ -374,7 +383,7 @@ function ERP = simulateOneSubject(sampleActorIntArray, sampleAgeInt_OneSubject, 
     % This step's code is adapted from the LME_04_CalculateERPs.m script.
     % The main change is that the simulated subject's ERP data file is
     % not saved. Instead, the ERP variable is outputted into the simulateOneSample
-    % function and the trial level data is exported at the sample level (i.e., one
+    % function and the trial level data are exported at the sample level (i.e., one
     % text file containing mean amplitude values for all subjects). 
 
     ERP = pop_averager(EEG , 'Criterion', 'good', 'DQ_flag', 1, 'ExcludeBoundary', 'off', 'SEM', 'on');
