@@ -22,21 +22,26 @@ A brief description of each script is listed below. Each script also has comment
 * **simulateOneSample.m**: Generates data for each subject of a simulated sample using the simulateOneSubject function.
   * This function specifies the actor and age intercepts for a sample. In addition, this function creates the output files (mean amplitude file and subject data log) used in subsequent R scripts.
 * **simulateOneSubject.m**: Generates data for one subject.
-  * This function specifies the epoch window, sampling rate, presentation number of each stimulus, emotion peak amplitude and latency, subject peak amplitude intercept and latency shift, trial-level noise amplitude, and event marker preceding codes.
+  * This function specifies the epoch window, sampling rate, presentation number of each stimulus, emotion peak amplitude and latency, peak amplitude decay (habituation) for successive stimulus presentations, subject peak amplitude intercept and latency shift, trial-level noise amplitude, and event marker preceding codes.
 
 *R scripts for organizing data files and fitting LME and ANOVA models*
 * **LMESimulation_03_OrganizeDataFiles.R**: Merges the mean amplitude output files and subject data log into one file. In addition, extracts subject ID and stimuli-related information for each trial and organizes them into variables for LME and ANOVA analysis.
-* **LMESimulation_04_ExtractModelOutput.R**: Imports each simulated sample’s data file, induces missing trials based on the specified missingness pattern (e.g., more missing data in later trials and in younger subjects) and percent of subjects with low trial-count, and fits LME and ANOVA models to the dataset. Estimated marginal means are extracted for each emotion condition and model.
-  * This script also includes code for running a power analysis.
+* **LMESimulation_04_ExtractModelOutput.R**: Imports each simulated sample’s data file, induces missing trials based on the specified missingness pattern (e.g., more missing data in later trials and in younger subjects) and percentage of subjects with low trial-count, and fits LME and ANOVA models to the dataset. Estimated marginal means are extracted for each emotion condition and model.
+  * This script also includes code to assess the divergence of each model's marginal means from the true population mean (with root mean squared error and relative bias) and run a power analysis.
 
 ## Script requirements
-* MATLAB R2019a 
+* MATLAB R2019a: [https://www.mathworks.com/](https://www.mathworks.com/)
 * EEGLAB v. 2019_0: [https://sccn.ucsd.edu/eeglab/index.php](https://sccn.ucsd.edu/eeglab/index.php)
 * ERPLAB v. 8.01: [https://erpinfo.org/erplab/](https://erpinfo.org/erplab/)
 * SEREEGA v. 1.1.0: [https://github.com/lrkrol/SEREEGA](https://github.com/lrkrol/SEREEGA)
 * Pediatric Head Atlas release v. 1.1, Atlas 1 (0-2 years old): [https://www.pedeheadmod.net/pediatric-head-atlases/](https://www.pedeheadmod.net/pediatric-head-atlases/)
   * After requesting and downloading the atlas, the atlas folder should be added to the MATLAB path (via "Home" > "Set Path" > "Add with Subfolders").
-* R v. 3.6.1
+* R v. 3.6.1: [https://www.r-project.org/](https://www.r-project.org/)
+* lme4 v. 1.1-25: [https://cran.r-project.org/web/packages/lme4/index.html](https://cran.r-project.org/web/packages/lme4/index.html)
+* lmerTest v. 3.1-3: [https://cran.r-project.org/web/packages/lmerTest/index.html](https://cran.r-project.org/web/packages/lmerTest/index.html)
+* afex v. 0.28-1: [https://cran.r-project.org/web/packages/afex/index.html](https://cran.r-project.org/web/packages/afex/index.html)
+* emmeans v. 1.5.3: [https://cran.r-project.org/web/packages/emmeans/index.html](https://cran.r-project.org/web/packages/emmeans/index.html)
+* For other required R packages, see the LMESimulation_04_ExtractModelOutput.R script
 
 ## Suggested folder structure
 We recommend creating a parent folder for storing the following files:
@@ -46,12 +51,13 @@ We recommend creating a parent folder for storing the following files:
 * **LMESimulation_BinDescriptorFileKey.xlsx**: Documents the information in the bin descriptor file. This file is created during the LMESimulation_01_CreateBinDescriptorFile.m script.
 
 We also recommend adding the following subfolders for storing output files:
-* **MeanAmpOutput_Final**: Contains the formatted mean amplitude output files combining information from the MeanAmpOutput_PreMerge and SubjectDataLog folders. There is one file for each simulated sample and files are created during the LMESimulation_03_OrganizeDataFiles.R script.
-* **MeanAmpOutput_PreMerge**: Contains each sample’s mean amplitude values per bin, channel, and subject. There is one file for each simulated sample and files are created by the simulateOneSample function. 
-* **ModelOutput**: Contains the two output files created during the LMESimulation_04_ExtractModelOutput.R script for a specified missingness pattern (e.g., more missing data in later trials and in younger subjects). 
+
+* **01_MeanAmpOutput_PreMerge**: Contains each sample’s mean amplitude values per bin, channel, and subject. There is one file for each simulated sample and files are created by the simulateOneSample function. 
+* **01_SubjectDataLog**: Contains each sample’s subject data log, which lists each subject’s assigned age group. There is one file for each simulated sample and files are created by the simulateOneSample function. 
+* **02_MeanAmpOutput_Final**: Contains the formatted mean amplitude output files combining information from the 01_MeanAmpOutput_PreMerge and 01_SubjectDataLog folders. There is one file for each simulated sample and files are created during the LMESimulation_03_OrganizeDataFiles.R script.
+* **03_ModelOutput**: Contains the two output files created during the LMESimulation_04_ExtractModelOutput.R script for a specified missingness pattern (e.g., more missing data in later trials and in younger subjects). 
   * The model output file contains the LME and ANOVA models’ estimated marginal means for each emotion condition and percentage of subjects with low trial-count. Results from all simulated samples are stored in one file.
   * The trial count file lists the number of remaining trials per subject and emotion condition after inducing missing trials. Trial counts for all simulated samples are stored in one file.
-* **SubjectDataLog**: Contains each sample’s subject data log, which lists each subject’s assigned age group. There is one file for each simulated sample and files are created by the simulateOneSample function. 
 
 Examples of each output file are available here: [https://github.com/basclab/LME_MixedEffectsERPTutorial/tree/main/SimulationScripts/ExampleOutputFiles](https://github.com/basclab/LME_MixedEffectsERPTutorial/tree/main/SimulationScripts/ExampleOutputFiles)
 
@@ -59,7 +65,7 @@ Examples of each output file are available here: [https://github.com/basclab/LME
 Due to the computation time required (~6-8 minutes/sample), simulated samples reported in Heise et al. (submitted) were generated across three computers. These computers used identical scripts except for the following variables and lines of code in LMESimulation_02_SimulateERPData.m. These variables correspond to the number of simulated samples (sampleN), first sample ID (sampleStart), and random seed. 
 
 For example, computer 2 used the Mersenne Twister generator with a seed of 3 and simulated 250 samples with IDs from #501 to 750. 
-Computer Name | sampleN (line 126) | sampleStart (line 131) | Random seed (line 138)
+Computer Name | sampleN (line 129) | sampleStart (line 134) | Random seed (line 141)
 ------------ | ------------- | ------------- | -------------
 1 | 500 | 1 | rng(1,'twister')
 2 | 250 | 501 | rng(2,'twister')
