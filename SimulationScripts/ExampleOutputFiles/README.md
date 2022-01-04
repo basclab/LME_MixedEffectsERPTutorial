@@ -11,6 +11,6 @@ The following scripts were used to produce these example output files. See each 
 * **LMESimulation_03_OrganizeDataFiles.R**:
   * Sample0443-MeanAmpOutput.csv: This file is identical to the one saved in the [LME tutorial section](https://github.com/basclab/LME_MixedEffectsERPTutorial/tree/main/LMETutorialScripts).
 
-* **LMESimulation_04_ExtractModelOutput.R**: We imported the Sample0443-MeanAmpOutput.csv file and induced more missing data in later trials across both age groups. 
+* **LMESimulation_04_ExtractModelOutput.R**: We imported the Sample0443-MeanAmpOutput.csv file and induced more missing data in later trials and in younger subjects. 
   * sampleN1_subN50_modelOutput.csv
   * sampleN1_subN50_trialCount.csv
