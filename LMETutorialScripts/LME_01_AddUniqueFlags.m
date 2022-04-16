@@ -17,7 +17,7 @@
 % spreadsheet with your event marker naming conventions (see example
 % template on GitHub: https://github.com/basclab/LME_MixedEffectsERPTutorial/blob/main/LMETutorialScripts/LME_EventMarkerMappingKey.xlsx).
 
-% ***See Appendix D from Heise, Mon, and Bowman (submitted) for additional details. ***
+% ***See Appendix D from Heise, Mon, and Bowman (2022) for additional details. ***
 
 % Requirements:
     % - Needs MATLAB R2019a, EEGLAB v 2019_0
@@ -109,7 +109,7 @@ for f = 1:length(importFiles) % Loop through each subject's file
     % of interest in the subject's allEventArray (for example, we are interested 
     % in identifying emotional face stimuli markers, but not fixation markers)
     for w = 1:length(eventMarkerMapping.NumericalValue) % Loop through each row of the eventMarkerMapping's NumericalValue column
-        eventMarkerOriginal = eventMarkerMapping.NumericalValue(w); % Extract each original event marker 
+        eventMarkerOriginal = eventMarkerMapping.NumericalValue(w); % Extract original event marker 
         eventMarkerPrecCode = eventMarkerMapping.NewPrecedingCode(w); % Extract corresponding 3-digit preceding code from the NewPrecedingCode column
         
         % Extract all occurrences of this specific event marker from the subject's allEventArray

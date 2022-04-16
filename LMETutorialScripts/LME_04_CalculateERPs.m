@@ -9,7 +9,7 @@
 % of the trials within a condition. For the "all conditions" bin, every trial 
 % across every condition is averaged. 
 
-% ***See Appendix D from Heise, Mon, and Bowman (submitted) for additional details. ***
+% ***See Appendix D from Heise, Mon, and Bowman (2022) for additional details. ***
 
 % Requirements:
     % - Needs MATLAB R2019a, EEGLAB v 2019_0 and ERPLAB v 8.01
@@ -83,7 +83,7 @@ for f = 1:length(importFiles) % Loop through each subject's file
     % The ‘Criterion’ and 'good' arguments specify that artifact-containing
     % epochs should be removed from the dataset before calculating ERPs.
     % The 'ExcludeBoundary' argument specifies that boundary-containing epochs 
-    % are also removed. 
+    % (i.e., epochs containing discontinuous data) are also removed. 
     ERP = pop_averager(EEG , 'Criterion', 'good', 'DQ_flag', 1, 'ExcludeBoundary', 'on', 'SEM', 'on');
 
 %% 3. SAVE SUBJECT'S .ERP FILE

@@ -1,6 +1,6 @@
 % LME Tutorial Script: 5. Measure ERPs
 
-% This script extracts the mean amplitude of a component from the trial-level
+% This script extracts the mean amplitude of an ERP component from the trial-level
 % and averaged ERP waveforms calculated in the LME_04_CalculateERPs.m script.
 % Data is exported for each channel of interest.
 
@@ -25,7 +25,7 @@
 % extracting a different output measure (e.g., peak amplitude), see the
 % following ERPLAB resource: https://github.com/lucklab/erplab/wiki/Measuring-amplitudes-and-latencies-with-the-ERP-Measurement-Tool:-Tutorial  
 
-% ***See Appendix D from Heise, Mon, and Bowman (submitted) for additional details. ***
+% ***See Appendix D from Heise, Mon, and Bowman (2022) for additional details. ***
 
 % Requirements:
     % - Needs MATLAB R2019a, EEGLAB v 2019_0 and ERPLAB v 8.01
@@ -124,7 +124,7 @@ addpath(setNaNForEmptyBinsFolder)
     % - Cz (channel #64)
     % - C4 (channel #24)
 % The time window and channels of interest can be modified based on your
-% component of interest. 
+% ERP component of interest. 
 timeWindowArray = [300 500];
 channelArray = [8 24 64];
 
@@ -141,13 +141,14 @@ for f = 1:length(importFiles) % Loop through each subject's file
 %% 2. EXPORT THE RAW MEAN AMPLITUDE OUTPUT FILE (NOT FOR ANALYSIS)
     
     % Create filename for saving the raw mean amplitude .txt file
-    saveOutputFilename_RAW = fullfile(saveOutputFolder_RAW, filename);
+    filename = strcat(filename, '.txt');
+    saveOutputFilepath_RAW = fullfile(saveOutputFolder_RAW, filename);
     
     % Calculate the mean amplitude for each bin over the time window and
     % channels specified above.
     ALLERP = pop_geterpvalues(ERP, timeWindowArray, 1:ERP.nbin, channelArray, ...
         'Baseline', 'pre', 'Binlabel', 'on', 'FileFormat', 'long', ...
-        'Filename', saveOutputFilename_RAW, 'Fracreplace', 'NaN', 'IncludeLat', 'yes', ...
+        'Filename', saveOutputFilepath_RAW, 'Fracreplace', 'NaN', 'IncludeLat', 'yes', ...
         'InterpFactor', 1, 'Measure', 'meanbl', 'PeakOnset', 1, 'Resolution', 3);
     
     % See ERPLAB resource listed above (lines 20-26) for more information
@@ -155,11 +156,13 @@ for f = 1:length(importFiles) % Loop through each subject's file
     % extracting a different output measure (e.g., peak amplitude). 
     
 %% 3. USE SETNANFOREMPTYBINS TO EXPORT THE FINAL MEAN AMPLITUDE OUTPUT FILE
-   
+    fprintf('Subject %s: Export Final Output File \n\n', filename);
+    
     % Extract the final number of trials assigned to each bin during the
     % LME_04_CalculateERPs.m script. This array does not include any trials
-    % that were rejected due to artifacts or boundary events. This array 
-    % will be used by the setNaNForEmptyBins function to identify empty bins. 
+    % that were rejected due to artifacts or boundary events (i.e., event markers 
+    % signifying discontinuities in the data file). This array will be used
+    % by the setNaNForEmptyBins function to identify empty bins. 
     acceptedTrialArray = ERP.ntrials.accepted'; 
     
     % The final mean amplitude output file is created and saved within the
@@ -170,6 +173,6 @@ for f = 1:length(importFiles) % Loop through each subject's file
     setNaNForEmptyBins(filename, saveOutputFolder_RAW, saveOutputFolder_FINAL, ...
         acceptedTrialArray, 'mean');
     
-    clear originalName filename saveOutputFilename_RAW acceptedTrialArray
+    clear originalName filename saveOutputFilepath_RAW acceptedTrialArray
 end
 clear % Clear variable workspace

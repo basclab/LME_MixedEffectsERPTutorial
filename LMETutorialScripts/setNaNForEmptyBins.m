@@ -9,9 +9,9 @@
 % NOTE: This function has been tested with exported peak amplitude and mean
 % amplitude output files. Exporting other types of output values (e.g.,
 % peak latency) may require adapting the column information specified in
-% lines 76-82.
+% lines 77-83.
 
-% ***See Appendix D from Heise, Mon, and Bowman (submitted) for additional details. ***
+% ***See Appendix D from Heise, Mon, and Bowman (2022) for additional details. ***
 
 % Format:
     % setNaNForEmptyBins(filename, rawFolderName, finalFolderName, acceptedTrialArray, outputMeasurement)
@@ -24,11 +24,12 @@
     %   files after converting the output value of empty bins to NaN.
     % - acceptedTrialArray: Array listing the number of trials assigned to each
     %   bin. This array does not include any trials that were rejected due to
-    %   artifacts or boundary events. 
+    %   artifacts or boundary events (i.e., event markers signifying discontinuities
+    %   in the data file).
     % - outputMeasurement: String specifying whether the output .txt file
-    %   has peak amplitude ("peak") or mean amplitude ("mean") values. See 
-    %   above note in lines 9-12 about modifying the function for other output 
-    %   values (e.g., peak latency). 
+    %   contains exported peak amplitude ("peak") or mean amplitude ("mean") 
+    %   values. See above note in lines 9-12 about modifying the function for  
+    %   other output values (e.g., peak latency). 
     
 % Other Requirements:
     % - Needs MATLAB R2019a
@@ -38,7 +39,7 @@
 % of the function. 
 
 % Usage example:
-    % >> filename = 'Sub-001-1_EEBP_example.erp';
+    % >> filename = 'Sub-001-1_EEBP_example.txt';
     % >> saveOutputFolder_RAW = 'C:\Users\basclab\Desktop\LMETutorial\16_ERPsNC\RawFiles_NotForAnalysis';
     % >> saveOutputFolder_FINAL = 'C:\Users\basclab\Desktop\LMETutorial\16_ERPsNC\FinalFiles';
     % >> acceptedTrialArray = ERP.ntrials.accepted';

@@ -19,7 +19,7 @@
 % In addition, see script comments below for code that can be
 % customized.
 
-% ***See Appendix D from Heise, Mon, and Bowman (submitted) for additional details. ***
+% ***See Appendix D from Heise, Mon, and Bowman (2022) for additional details. ***
 
 % Requirements:  
     % - Needs MATLAB R2019a
@@ -171,8 +171,8 @@ binDescriptorTable = [binDescriptorTable; {num2cell(allConditionsBinNumber), cel
 % Specify the bin number for each unique stimulus presentation by first 
 % counting the number of unique event markers in allConditionsArray. Each
 % bin number is then adjusted based on the number of existing bins 
-% (e.g., if there are already 7 bins created in steps 1-2, then the
-% trial-specific bins are shifted by 7). 
+% (e.g., if there are already 5 bins created in steps 1-2, then the
+% trial-specific bin numbers are shifted by 5). 
 trialSpecificBinNumber = (1:length(allConditionsArray))';
 trialSpecificBinNumber = trialSpecificBinNumber + height(binDescriptorTable); 
 

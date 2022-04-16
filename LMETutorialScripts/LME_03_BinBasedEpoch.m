@@ -13,7 +13,7 @@
 % To adapt the script for your processing pipeline, see script comments 
 % below for code that can be customized.
 
-% ***See Appendix D from Heise, Mon, and Bowman (submitted) for additional details. ***
+% ***See Appendix D from Heise, Mon, and Bowman (2022) for additional details. ***
 
 % Requirements:
     % - Needs MATLAB R2019a, EEGLAB v 2019_0 and ERPLAB v 8.01
@@ -100,7 +100,8 @@ for f = 1:length(importFiles) % Loop through each subject's file
     fprintf('Subject %s: Creating EventList \n\n', filename);
     
     % The ‘BoundaryNumeric’ and ‘BoundaryString’ arguments specify that any
-    % 'boundary' event markers are converted to ‘-99’ event markers.
+    % 'boundary' event markers (i.e., event markers signifying
+    % discontinuities in the data file) are converted to ‘-99’ event markers.
     EEG  = pop_creabasiceventlist(EEG , 'AlphanumericCleaning', 'on', 'BoundaryNumeric', { -99 }, 'BoundaryString', { 'boundary' });
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
     
@@ -124,8 +125,9 @@ for f = 1:length(importFiles) % Loop through each subject's file
 %% 4. EXTRACT BIN-BASED EPOCHS AND BASELINE CORRECT
     fprintf('Subject %s: Extract Epochs and Baseline Correct \n\n', filename);
 
-    % In this tutorial, data is epoched in a -200 to 1000 ms time window and
-    % data is baseline corrected using the average voltage from the
+    % In this tutorial, data is epoched in a -200 to 1000 ms time window
+    % (representing a 1000 ms post-stimulus epoch with 200 ms baseline). 
+    % Data is baseline corrected using the average voltage from the
     % pre-stimulus period. The epoch and baseline correction window can be
     % modified based on your processing pipeline. 
     EEG = pop_epochbin(EEG , [-200.0  1000.0],  'pre');
