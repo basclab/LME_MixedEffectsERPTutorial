@@ -1,4 +1,4 @@
-This tutorial pipeline uses MATLAB to process continuous EEG data files and calculate trial-level ERP waveforms. Mean amplitude values are then exported into R and analyzed with LME models. See Appendix D from Heise, Mon, and Bowman (submitted) for additional details.
+This tutorial pipeline uses MATLAB to process continuous EEG data files and calculate trial-level ERP waveforms. Mean amplitude values are then exported into R and analyzed with LME models. See Appendix D from Heise, Mon, and Bowman (2022) for additional details.
 
 ## Table of Contents  
 * [Processing pipeline overview](#processing-pipeline-overview)
