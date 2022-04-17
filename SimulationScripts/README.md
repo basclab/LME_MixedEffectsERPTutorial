@@ -1,4 +1,4 @@
-Simulated ERP data reported in Section 3 and Appendix B of Heise, Mon, and Bowman (submitted) were generated with the following MATLAB and R scripts. This README describes how to run the simulation scripts and conduct a power analysis. 
+Simulated ERP data reported in Section 3 and Appendix B of Heise, Mon, and Bowman (2022) were generated with the following MATLAB and R scripts. This README describes how to run the simulation scripts and conduct a power analysis. 
 
 For additional information, see Appendix B for an overview of the simulation methods and comparison of linear mixed effects (LME) and analysis of variance (ANOVA) models. See Appendix D for a tutorial of the R code used to fit the LME and ANOVA models. 
 
@@ -16,7 +16,7 @@ A brief description of each script is listed below. Each script also has comment
 * **LMESimulation_01_CreateBinDescriptorFile.m**: Creates a .txt file listing the event markers that belong to each ERP ‘bin’.
   * In this simulation, each simulated subject saw 100 trials (2 emotion conditions and 5 different ‘actors’ with 10 presentations each). As a result, there are 100 trial-specific bins.
 * **LMESimulation_02_SimulateERPData.m**: Simulates trial-level ERP data using three helper functions (simulateAllSamples, simulateOneSample, and simulateOneSubject).
-  * This script specifies the number of simulated samples, subjects per sample, and random seed. See section below for more information about replicating the results presented in Heise et al. (submitted).
+  * This script specifies the number of simulated samples, subjects per sample, and random seed. See section below for more information about replicating the results presented in Heise et al. (2022).
 * **simulateAllSamples.m**: Specifies a neural source and generates data for each sample using the simulateOneSample function.
   * This function specifies the lead field, channel montage, channels of interest, and dipole location and orientation used for all simulated samples.
 * **simulateOneSample.m**: Generates data for each subject of a simulated sample using the simulateOneSubject function.
@@ -62,7 +62,7 @@ We also recommend adding the following subfolders for storing output files:
 Examples of each output file are available here: [https://github.com/basclab/LME_MixedEffectsERPTutorial/tree/main/SimulationScripts/ExampleOutputFiles](https://github.com/basclab/LME_MixedEffectsERPTutorial/tree/main/SimulationScripts/ExampleOutputFiles)
 
 ## Details for replicating results from manuscript
-Due to the computation time required (~6-8 minutes/sample), simulated samples reported in Heise et al. (submitted) were generated across three computers. These computers used identical scripts except for the following variables and lines of code in LMESimulation_02_SimulateERPData.m. These variables correspond to the number of simulated samples (sampleN), first sample ID (sampleStart), and random seed. 
+Due to the computation time required (~6-8 minutes/sample), simulated samples reported in Heise et al. (2022) were generated across three computers. These computers used identical scripts except for the following variables and lines of code in LMESimulation_02_SimulateERPData.m. These variables correspond to the number of simulated samples (sampleN), first sample ID (sampleStart), and random seed. 
 
 For example, computer 2 used the Mersenne Twister generator with a seed of 3 and simulated 250 samples with IDs from #501 to 750. 
 Computer Name | sampleN (line 129) | sampleStart (line 134) | Random seed (line 141)
@@ -76,6 +76,6 @@ The above scripts can be modified based on your experiment design (e.g., number 
 
 In addition, the Pediatric Head Atlas is most appropriate for developmental data, but the New York Head (ICBM-NY) and lead fields generated with the FieldTrip toolbox can also be used for simulations. Further documentation is provided in Krol et al. (2018).
 
-After simulating a large number of datasets (we selected 1,000 samples to balance computation time with a sufficiently large number of simulations) and organizing the data files, use the LMESimulation_04_ExtractModelOutput.R script to simulate expected missing data patterns and fit each dataset to your linear mixed effect model. Power is calculated as the percentage of models where the effect of interest was observed (see comments in LMESimulation_04_ExtractModelOutput.R for more information). 
+After simulating a large number of datasets (we selected 1,000 samples to balance computation time with a sufficiently large number of simulations) and organizing the data files, use the LMESimulation_04_ExtractModelOutput.R script to simulate expected missing data patterns and fit each dataset to your linear mixed effects model. Power is calculated as the percentage of models where the effect of interest was observed (see comments in LMESimulation_04_ExtractModelOutput.R for more information). 
 
 Krol, L. R., Pawlitzki, J., Lotte, F., Gramann, K., & Zander, T. O. (2018). SEREEGA: Simulating event-related EEG activity. *Journal of Neuroscience Methods*, *309*, 13–24. [https://doi.org/10.1016/j.jneumeth.2018.08.001](https://doi.org/10.1016/j.jneumeth.2018.08.001)
