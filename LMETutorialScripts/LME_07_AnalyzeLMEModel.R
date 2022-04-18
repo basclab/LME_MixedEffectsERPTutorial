@@ -1,10 +1,17 @@
 # LME Tutorial Script: 7. Analyze LME Model 
 
-# This script imports a simulated mean amplitude file and induces missing trials
-# based on two parameters: a missingness pattern (e.g., more missing data in later 
-# trials and in younger subjects) and a percentage of subjects with low trial-count 
+# This script imports a simulated mean amplitude file ("population dataset" with
+# no missing trials) from Section 3 of Heise, Mon, and Bowman (2022). We 
+# demonstrate how to fit a linear mixed effects (LME) model to the trial-level 
+# dataset, test model assumptions, and extract estimated marginal means. We also
+# show how to fit an ANOVA model to the trial-averaged dataset and extract
+# estimated marginal means. 
+
+# We then show how to induce missing trials in your dataset based on two parameters: 
+# a missingness pattern (e.g., more missing data in later trials and in 
+# younger subjects) and a percentage of subjects with low trial-count 
 # (e.g., 6% of subjects are induced to have less than 10 trials/condition 
-# remaining). Then, a linear mixed effects (LME) model is fitted to the 
+# remaining). After inducing trial missingness, we fit an LME model to the 
 # trial-level dataset. Next, casewise deletion is performed (subjects with less
 # than 10 trials/emotion condition are removed) and the trial-averaged dataset 
 # is used to fit an ANOVA model. Estimated marginal means are extracted for each
@@ -20,7 +27,7 @@
 # ***See Appendix D from Heise, Mon, and Bowman (2022) for additional details. ***
 
 # Requirements: 
-  # - Needs R Version 3.6.1 and packages listed in lines 84-92
+  # - Needs R Version 3.6.1 and packages listed in lines 91-99
   # - filename: One simulated sample's .csv file containing the following columns, 
   #   which are labeled based on the convention that lowercase variables describe 
   #   fixed effects (e.g., emotion) and capital-letter variables describe random 
@@ -292,7 +299,7 @@ presentNumberWeight1to5 <- 1-presentNumberWeight6to10
 # Calculate the total number of trials per condition for each group of presentation
 # numbers (i.e., presentation numbers 6-10 and 1-5). This value is used to scale each  
 # individual trial's presentation number weight so that the weights will sum to 1
-# (see lines 317-319). 
+# (see lines 324-326). 
 emotionTrialN <- length(unique(dfOriginal$ACTOR)) * length(unique(dfOriginal$presentNumber))  
 presentNumberTrials6to10 <- emotionTrialN/2 
 presentNumberTrials1to5 <- emotionTrialN/2 
@@ -307,7 +314,7 @@ ageWeightOlder <- 1-ageWeightYounger
 # Calculate the total number of subjects in the younger and older age groups. In 
 # this simulation, we define an equal number of younger and older subjects. This
 # value is used to scale each subject's age weight so that the weights will sum to 
-# 1 (see lines 320-321).
+# 1 (see lines 327-328).
 subjectN <- length(unique(dfOriginal$SUBJECTID))
 ageTrialsYounger <- subjectN/2
 ageTrialsOlder <- subjectN/2
