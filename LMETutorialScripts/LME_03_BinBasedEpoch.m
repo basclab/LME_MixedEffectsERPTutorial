@@ -78,7 +78,7 @@ importFolder = 'C:\Users\basclab\Desktop\LMETutorial\11_RereferencedToAvg';
 cd(importFolder); % Change current folder to importFolder
 importFiles = dir('*.set'); % Make a directory of all .set files in importFolder
 
-% Specify folder location for saving EventList and epoched data files 
+% Specify folder locations for saving EventList and epoched data files 
 saveEventListFolder = 'C:\Users\basclab\Desktop\LMETutorial\12_EventList';
 saveEpochDataFolder = 'C:\Users\basclab\Desktop\LMETutorial\13_Epoched';
 

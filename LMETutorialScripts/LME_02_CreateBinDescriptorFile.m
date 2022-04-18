@@ -31,6 +31,8 @@
         %   representing each stimulus' emotion condition/actor (i.e., NewPrecedingCode
         %   column) and the corresponding overarching bin (i.e., EmotionLabel column).
         %   For more information about this file's columns, see the "Key" sheet in this file. 
+    % - presentNumber: Maximum presentation number of each stimulus. See
+    %   comments below for more information.
 
 % Script Functions:
     % 1. Create overarching bins that include all trials within each condition
@@ -136,14 +138,14 @@ for i =1:length(uniqueOverarchingBins) % Loop through each possible overarching 
     % Create a string that lists each event markers and separates them with 
     % semicolons (e.g., "30101;30102;30103;30104;30105;30106;30107;30108;30109;30110;").
     % Note that the final event marker is followed by a semicolon, which will be
-    % removed in line 148 with the (1:end-1) indexing. 
+    % removed in line 150 with the (1:end-1) indexing. 
     eventMarkersStringSpec = '%s;'; 
     overarchingBinEventMarkers_output = sprintf(eventMarkersStringSpec, overarchingBinEventMarkers); 
     
     % Create a row in the binDescriptorTable with this overarching bin's number
-    % (specified in line 124 with the i variable), label (specified in line 125
+    % (specified in line 126 with the i variable), label (specified in line 127
     % with the overarchingBinLabel), and corresponding 5-digit event markers 
-    % (formatted in line 141). NOTE: The table's columns are formatted as cell arrays.
+    % (formatted in line 143). NOTE: The table's columns are formatted as cell arrays.
     binDescriptorTable = [binDescriptorTable; {num2cell(i), cellstr(overarchingBinLabel)}, ...
         {overarchingBinEventMarkers_output(1:end-1)}];
     
@@ -159,7 +161,7 @@ allConditionsBinNumber = height(binDescriptorTable) + 1; % The bin number is equ
 allConditionsBinLabel = 'AllEmotion';
 
 % Format the event markers in the allConditionsArray using the same
-% specifications from line 140.
+% specifications from line 142.
 allConditionsEventMarkers_output = sprintf(eventMarkersStringSpec, allConditionsArray);
 
 % Add a new row to binDescriptorTable for this "all conditions" bin

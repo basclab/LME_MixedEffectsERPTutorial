@@ -17,12 +17,13 @@
 # To adapt the script for your experiment design, verify that the subject ID
 # and other information have been correctly extracted and stored in the dataframe.
 
-# ***See Appendix D from Heise, Mon, and Bowman (submitted) for additional details. ***
+# ***See Appendix D from Heise, Mon, and Bowman (2022) for additional details. ***
 
 # Requirements: 
-  # - Needs R Version 3.6.1 and packages listed in lines 70-71
-  # - importFolder: Folder containing mean amplitude output .txt files created 
-  #   during the LME_05_MeasureERPs.m script. There is one file per subject.
+  # - Needs R Version 3.6.1 and packages listed in lines 71-72
+  # - importFolder: Folder containing final mean amplitude .txt files 
+  #   created with the setNaNForEmptyBins function in the LME_05_MeasureERPs.m 
+  #   script. There is one file per subject.
   # - saveFolder: Folder for saving the long dataframe (containing all 
   #   subjects' data) as a .csv file at the end of the script.
 
@@ -67,7 +68,7 @@
 # SOFTWARE.
 
 # Load required packages
-library(data.table) # V.1.13.2; fread function
+library(data.table) # V.1.13.2; fwrite function
 library(plyr) # V.1.8.6; revalue function
 #-----------------------------------------------------------------------
 # DATA ENVIRONMENT
@@ -132,8 +133,8 @@ allSubjectsDF_subset$presentNumber <- substr(allSubjectsDF_subset$binLabel,4,5)
 allSubjectsDF_subset$meanAmpNC <- allSubjectsDF_subset$value 
 
 # Create a channel column. In this example, channel only has 3 levels: C3, Cz, C4.
-# Due to the low number of levels, we include channel as a fixed effect based on
-# recommendations from previous literature (Volpert-Esmond et al., 2021).
+# Due to the low number of channel levels, we include channel as a fixed effect in
+# the linear mixed effects model reported in Section 4.3 in Heise et al. (2022).
 allSubjectsDF_subset$channel <- allSubjectsDF_subset$channelLabel
 
 # Convert emotion condition ID (e.g., 3) to a descriptive label (e.g., "Angry")

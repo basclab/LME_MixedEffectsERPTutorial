@@ -10,8 +10,9 @@
 % into a 3-digit preceding code (e.g., 301) using the eventMarkerMapping
 % spreadsheet. The first digit corresponds to the emotion condition (e.g., 3)
 % and the next two digits indicate the actor ID (e.g., 01). This 3-digit code
-% is then appended with the presentation number (e.g., 01) to create the 
-% final 5-digit marker (e.g., 30101). 
+% is then appended with the presentation number (e.g., the first presentation  
+% of the 301 stimulus has a presentation number of 01) to create the final
+% 5-digit marker (e.g., 30101). 
 
 % To adapt the script for your experiment design, modify the eventMarkerMapping
 % spreadsheet with your event marker naming conventions (see example
@@ -144,7 +145,7 @@ for f = 1:length(importFiles) % Loop through each subject's file
         
         % Update each new event with the corresponding presentation number 
         % (e.g., "30101", "30102", ...). NOTE: This assumes that events 
-        % have been sorted chronologically! (see line 127)
+        % have been sorted chronologically! (see line 128)
         allEventArray_updated(precCodeIdx) = strcat(allEventArray_updated(precCodeIdx), cellstr(presentNumberArray));
         [EEG.event.type] = deal(allEventArray_updated{:});
     end
