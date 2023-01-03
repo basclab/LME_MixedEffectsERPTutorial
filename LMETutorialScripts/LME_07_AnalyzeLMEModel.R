@@ -435,8 +435,7 @@ dfMargMeansSummary$caseDeletionPct <- factor(dfMargMeansSummary$caseDeletionPct,
 
 modelColors <- c('#e66101','#5e3c99') # Specify LME and ANOVA colors for graph
 ggplot(dfMargMeansSummary, aes(x=caseDeletionPct, y=emmean, color=modelType)) +
-  geom_errorbar(aes(ymin = (lower.CL), 
-                ymax = (upper.CL)), 
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), 
                 width = 0.2, size = .7, alpha = .8,
                 position=position_dodge(width=0.09)) +
   facet_grid(cols = vars(emotion)) +
