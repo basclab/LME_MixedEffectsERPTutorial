@@ -43,6 +43,8 @@ and power in linear mixed models. _Journal of Memory and Language, 94_, 305–31
 
 •	Meteyard, L., & Davies, R. A. I. (2020). Best practice guidance for linear mixed-effects models in psychological science. _Journal of Memory and Language, 112_, 1–22. https://doi.org/10.1016/j.jml.2020.104092
 
+•	Muradoglu, M., Cimpian, J. R., & Cimpian, A. (2023). Mixed-effects models for cognitive development researchers. _Journal of Cognition and Development, 24_(3), 307–340. https://doi.org/10.1080/15248372.2023.2176856
+
 •	Quené, H., & van den Bergh, H. (2004). On multi-level modeling of data from repeated measures designs: A tutorial. _Speech Communication, 43_, 103–121. https://doi.org/10.1016/j.specom.2004.02.004
 
 •	Quené, H., & van den Bergh, H. (2008). Examples of mixed-effects modeling with crossed random effects and with binomial data. _Journal of Memory and Language, 59_(4), 413–425. https://doi.org/10.1016/j.jml.2008.02.002
