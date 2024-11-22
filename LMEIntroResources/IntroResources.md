@@ -11,6 +11,8 @@ We recommend the following introductory textbooks, papers, and websites for line
 
 •	Gelman, A., & Hill, J. (2007). _Data analysis using regression and multilevel/hierarchical models_. Cambridge University Press.
 
+•	Kretzschmar, F., & Alday, P. M. (2023). Principles of statistical analyses: Old and new tools. In M. Grimaldi, E. Brattico, & Y. Shtyrov (Eds.), _Language electrified: Principles, methods, and future perspectives of investigation_ (pp. 123–160). Humana. https://doi.org/10.1007/978-1-0716-3263-5_5
+
 •	Nezlek, J. B. (2012). Multilevel modeling for psychologists. In H. Cooper, P. M. Camic, D. L. Long, A. T. Panter, D. Rindskopf, & K. J. Sher (Eds.), _APA handbook of research methods in psychology, volume 3. Data analysis and research publication_ (pp. 219–241). American Psychological Association. https://doi.org/10.1037/13621-011
 
 •	Raudenbush, S. W., & Bryk, A. S. (2002). _Hierarchical linear models: Applications and data analysis methods_ (2nd ed.). SAGE Publications.
