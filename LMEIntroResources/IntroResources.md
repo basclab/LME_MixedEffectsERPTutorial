@@ -62,8 +62,8 @@ and power in linear mixed models. _Journal of Memory and Language, 94_, 305–31
 
 •	Freeman, M. An introduction to hierarchical modeling. http://mfviz.com/hierarchical-models/
 
-•	Masur, P. (2018, May 23) How to center in multilevel models. https://philippmasur.de/2018/05/23/how-to-center-in-multilevel-models/
+•	Masur, P. (2018, May 23). How to center in multilevel models. https://philippmasur.de/2018/05/23/how-to-center-in-multilevel-models/
 
-• Palmeri, M. (2016). Chapter 18: Testing the assumptions of multilevel models. In _A language, not a letter: Learning statistics in R._ https://ademos.people.uic.edu/Chapter18.html
+• Palmeri, M. (2016). Chapter 18: Testing the assumptions of multilevel models. In A. Demos & C. Salas (Eds.), _A language, not a letter: Learning statistics in R._ https://ademos.people.uic.edu/Chapter18.html
 
-•	Shrikanth, S. Chapter 17: Mixed effects modeling. In A. Demos & C. Salas (Eds.), A language, not a letter: Learning statistics in R. https://ademos.people.uic.edu/Chapter17.html
+•	Shrikanth, S. Chapter 17: Mixed effects modeling. In A. Demos & C. Salas (Eds.), _A language, not a letter: Learning statistics in R._ https://ademos.people.uic.edu/Chapter17.html
